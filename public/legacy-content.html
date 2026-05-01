@@ -1,0 +1,1360 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DSA Pattern Recognition</title>
+<style>
+  :root {
+    --bg: #0f1117; --bg2: #1a1d27; --bg3: #22263a;
+    --border: #2e3348; --border2: #3d4260;
+    --text: #e8eaf6; --text2: #9095b0; --text3: #5a5f78;
+    --blue: #4f8ef7; --blue-bg: #1a2540; --blue-text: #a8c4fc;
+    --green: #3fc98a; --green-bg: #142a1e; --green-text: #85e0b5;
+    --amber: #f5a623; --amber-bg: #2a1e0a; --amber-text: #fcd08a;
+    --red: #f06060; --red-bg: #2a1010; --red-text: #f7a8a8;
+    --purple: #a07cf7; --purple-bg: #1e1530; --purple-text: #c9b3fc;
+    --teal: #2dd4bf; --teal-bg: #0d2722; --teal-text: #7eeee3;
+    --coral: #f48060; --coral-bg: #2a1510; --coral-text: #f7b8a0;
+    --mono: 'Fira Code', 'Cascadia Code', monospace;
+    --sans: 'Inter', system-ui, sans-serif;
+    --radius: 8px; --radius-lg: 12px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: var(--bg); color: var(--text); font-family: var(--sans); font-size: 14px; line-height: 1.6; min-height: 100vh; }
+
+  /* TOP NAV */
+  .topbar { background: var(--bg2); border-bottom: 1px solid var(--border); padding: 14px 24px; display: flex; align-items: center; gap: 16px; position: sticky; top: 0; z-index: 100; }
+  .topbar h1 { font-size: 15px; font-weight: 600; color: var(--text); letter-spacing: 0.02em; }
+  .topbar .badge { font-size: 11px; background: var(--blue-bg); color: var(--blue-text); padding: 2px 8px; border-radius: 20px; border: 1px solid var(--blue); }
+  .search-wrap { margin-left: auto; position: relative; }
+  .search-wrap input { background: var(--bg3); border: 1px solid var(--border2); color: var(--text); padding: 7px 12px 7px 32px; border-radius: var(--radius); font-size: 13px; width: 220px; outline: none; }
+  .search-wrap input:focus { border-color: var(--blue); }
+  .search-wrap::before { content: '⌕'; position: absolute; left: 10px; top: 50%; transform: translateY(-50%); color: var(--text3); font-size: 15px; }
+
+  /* LAYOUT */
+  .layout { display: flex; height: calc(100vh - 53px); }
+  .sidebar { width: 210px; flex-shrink: 0; background: var(--bg2); border-right: 1px solid var(--border); overflow-y: auto; padding: 12px 0; }
+  .main { flex: 1; overflow-y: auto; padding: 24px 32px; }
+
+  /* SIDEBAR NAV */
+  .sidebar-section { font-size: 10px; font-weight: 600; color: var(--text3); text-transform: uppercase; letter-spacing: 0.1em; padding: 8px 16px 4px; }
+  .nav-item { display: flex; align-items: center; gap: 8px; padding: 7px 16px; cursor: pointer; font-size: 13px; color: var(--text2); transition: all 0.15s; border-left: 2px solid transparent; }
+  .nav-item:hover { background: var(--bg3); color: var(--text); }
+  .nav-item.active { background: var(--bg3); color: var(--blue); border-left-color: var(--blue); }
+  .nav-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
+
+  /* SECTION PAGES */
+  .page { display: none; }
+  .page.active { display: block; }
+
+  /* PAGE HEADER */
+  .page-header { display: flex; align-items: flex-start; gap: 16px; margin-bottom: 24px; }
+  .page-icon { width: 40px; height: 40px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0; }
+  .page-title { font-size: 22px; font-weight: 600; color: var(--text); }
+  .page-subtitle { font-size: 13px; color: var(--text2); margin-top: 2px; }
+
+  /* CARDS GRID */
+  .cards-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 20px; }
+  .cards-grid.three { grid-template-columns: 1fr 1fr 1fr; }
+  .cards-grid.one { grid-template-columns: 1fr; }
+  @media (max-width: 900px) { .cards-grid, .cards-grid.three { grid-template-columns: 1fr; } }
+
+  /* CARD */
+  .card { background: var(--bg2); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 16px; }
+  .card-header { display: flex; align-items: center; gap: 8px; margin-bottom: 12px; }
+  .card-title { font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; }
+  .card-icon { font-size: 13px; }
+
+  /* SIGNAL TAGS */
+  .tag-list { display: flex; flex-wrap: wrap; gap: 6px; }
+  .tag { font-size: 11px; font-family: var(--mono); padding: 3px 8px; border-radius: 4px; border: 1px solid; }
+  .tag.blue { background: var(--blue-bg); color: var(--blue-text); border-color: var(--blue); }
+  .tag.green { background: var(--green-bg); color: var(--green-text); border-color: var(--green); }
+  .tag.amber { background: var(--amber-bg); color: var(--amber-text); border-color: var(--amber); }
+  .tag.red { background: var(--red-bg); color: var(--red-text); border-color: var(--red); }
+  .tag.purple { background: var(--purple-bg); color: var(--purple-text); border-color: var(--purple); }
+  .tag.teal { background: var(--teal-bg); color: var(--teal-text); border-color: var(--teal); }
+  .tag.gray { background: var(--bg3); color: var(--text2); border-color: var(--border2); }
+
+  /* BULLET LIST */
+  .bullet-list { list-style: none; }
+  .bullet-list li { padding: 4px 0 4px 16px; position: relative; font-size: 13px; color: var(--text2); }
+  .bullet-list li::before { content: ''; position: absolute; left: 4px; top: 12px; width: 4px; height: 4px; border-radius: 50%; background: var(--text3); }
+  .bullet-list.green li::before { background: var(--green); }
+  .bullet-list.red li::before { background: var(--red); }
+
+  /* USE / NOT USE */
+  .use-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .use-box { padding: 12px; border-radius: var(--radius); }
+  .use-box.yes { background: var(--green-bg); border: 1px solid #1e4a30; }
+  .use-box.no { background: var(--red-bg); border: 1px solid #4a1e1e; }
+  .use-label { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 8px; }
+  .use-box.yes .use-label { color: var(--green); }
+  .use-box.no .use-label { color: var(--red); }
+  .use-box ul { list-style: none; }
+  .use-box li { font-size: 12px; padding: 2px 0; }
+  .use-box.yes li { color: var(--green-text); }
+  .use-box.no li { color: var(--red-text); }
+
+  /* PROBLEMS TABLE */
+  .prob-table { width: 100%; border-collapse: collapse; }
+  .prob-table th { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text3); padding: 6px 10px; text-align: left; border-bottom: 1px solid var(--border); }
+  .prob-table td { padding: 7px 10px; font-size: 13px; border-bottom: 1px solid var(--border); }
+  .prob-table tr:last-child td { border-bottom: none; }
+  .diff { font-size: 11px; font-weight: 600; padding: 2px 7px; border-radius: 4px; }
+  .diff.E { background: var(--green-bg); color: var(--green-text); }
+  .diff.M { background: var(--amber-bg); color: var(--amber-text); }
+  .diff.H { background: var(--red-bg); color: var(--red-text); }
+  .prob-name { color: var(--text); }
+  .prob-note { font-size: 11px; color: var(--text3); }
+
+  /* DIVIDER */
+  .divider { height: 1px; background: var(--border); margin: 20px 0; }
+
+  /* COMPARISON SECTION */
+  .vs-card { background: var(--bg2); border: 1px solid var(--border); border-radius: var(--radius-lg); overflow: hidden; margin-bottom: 14px; }
+  .vs-header { padding: 12px 16px; background: var(--bg3); border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 10px; font-size: 13px; font-weight: 600; color: var(--text); }
+  .vs-body { display: grid; grid-template-columns: 1fr 1fr; }
+  .vs-col { padding: 14px 16px; }
+  .vs-col:first-child { border-right: 1px solid var(--border); }
+  .vs-col-title { font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 10px; }
+  .vs-col ul { list-style: none; }
+  .vs-col li { font-size: 12px; color: var(--text2); padding: 3px 0; padding-left: 12px; position: relative; }
+  .vs-col li::before { content: '→'; position: absolute; left: 0; color: var(--text3); font-size: 11px; }
+  .vs-rule { background: var(--amber-bg); border-top: 1px solid var(--border); padding: 10px 16px; font-size: 12px; color: var(--amber-text); }
+  .vs-rule strong { color: var(--amber); }
+
+  /* DECISION TREE */
+  .decision-tree { display: flex; flex-direction: column; gap: 8px; }
+  .dt-row { display: flex; align-items: stretch; gap: 0; background: var(--bg2); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; }
+  .dt-if { background: var(--bg3); padding: 10px 14px; font-size: 12px; color: var(--text2); min-width: 280px; flex-shrink: 0; border-right: 1px solid var(--border); font-family: var(--mono); }
+  .dt-if span { color: var(--blue-text); font-weight: 600; font-size: 11px; display: block; margin-bottom: 2px; text-transform: uppercase; letter-spacing: 0.05em; }
+  .dt-then { padding: 10px 14px; font-size: 12px; display: flex; align-items: center; gap: 8px; flex: 1; }
+  .dt-pattern { font-weight: 600; color: var(--text); font-family: var(--mono); font-size: 12px; }
+  .dt-why { color: var(--text3); font-size: 11px; }
+  .dt-badge { font-size: 10px; padding: 2px 7px; border-radius: 3px; font-weight: 600; flex-shrink: 0; }
+
+  /* CATEGORY HEADERS */
+  .section-title { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text3); margin: 24px 0 10px; display: flex; align-items: center; gap: 8px; }
+  .section-title::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+
+  /* PATTERN GRID (home) */
+  .pattern-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+  .pattern-card { background: var(--bg2); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 14px; cursor: pointer; transition: all 0.15s; }
+  .pattern-card:hover { border-color: var(--blue); background: var(--bg3); }
+  .pattern-card .pc-title { font-size: 13px; font-weight: 600; color: var(--text); margin-bottom: 4px; }
+  .pattern-card .pc-tags { font-size: 11px; color: var(--text3); font-family: var(--mono); }
+
+  /* HOME STATS */
+  .stats-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 24px; }
+  .stat-box { background: var(--bg2); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 14px; text-align: center; }
+  .stat-num { font-size: 26px; font-weight: 600; }
+  .stat-label { font-size: 11px; color: var(--text2); margin-top: 2px; }
+
+  /* CODE */
+  code { font-family: var(--mono); font-size: 12px; background: var(--bg3); padding: 1px 5px; border-radius: 3px; color: var(--teal-text); }
+
+  /* SCROLLBAR */
+  ::-webkit-scrollbar { width: 6px; height: 6px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 3px; }
+
+  /* FILTER TABS */
+  .filter-tabs { display: flex; gap: 6px; margin-bottom: 16px; flex-wrap: wrap; }
+  .ftab { font-size: 12px; padding: 4px 12px; border-radius: 20px; border: 1px solid var(--border2); cursor: pointer; color: var(--text2); background: transparent; transition: all 0.15s; }
+  .ftab:hover, .ftab.active { background: var(--blue-bg); color: var(--blue-text); border-color: var(--blue); }
+
+  /* HIGHLIGHT */
+  .highlight { background: #2a2400; color: var(--amber-text); border-radius: 2px; }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <h1>DSA Pattern Recognition</h1>
+  <span class="badge">Interview Cheat Sheet</span>
+  <div class="search-wrap">
+    <input type="text" id="searchInput" placeholder="Search patterns, problems..." oninput="handleSearch(this.value)">
+  </div>
+</div>
+
+<div class="layout">
+  <nav class="sidebar" id="sidebar">
+    <div class="sidebar-section">Overview</div>
+    <div class="nav-item active" onclick="showPage('home')" data-page="home">
+      <span class="nav-dot" style="background:#4f8ef7"></span> Pattern Map
+    </div>
+    <div class="nav-item" onclick="showPage('decision')" data-page="decision">
+      <span class="nav-dot" style="background:#f5a623"></span> Decision Framework
+    </div>
+    <div class="nav-item" onclick="showPage('compare')" data-page="compare">
+      <span class="nav-dot" style="background:#a07cf7"></span> Cross-Pattern Comparison
+    </div>
+
+    <div class="sidebar-section">Array / String</div>
+    <div class="nav-item" onclick="showPage('sliding')" data-page="sliding">
+      <span class="nav-dot" style="background:#3fc98a"></span> Sliding Window
+    </div>
+    <div class="nav-item" onclick="showPage('twoptr')" data-page="twoptr">
+      <span class="nav-dot" style="background:#3fc98a"></span> Two Pointers
+    </div>
+    <div class="nav-item" onclick="showPage('prefix')" data-page="prefix">
+      <span class="nav-dot" style="background:#3fc98a"></span> Prefix Sum
+    </div>
+    <div class="nav-item" onclick="showPage('hashing')" data-page="hashing">
+      <span class="nav-dot" style="background:#3fc98a"></span> Hashing
+    </div>
+    <div class="nav-item" onclick="showPage('bsearch')" data-page="bsearch">
+      <span class="nav-dot" style="background:#2dd4bf"></span> Binary Search
+    </div>
+    <div class="nav-item" onclick="showPage('mono')" data-page="mono">
+      <span class="nav-dot" style="background:#2dd4bf"></span> Monotonic Stack/Queue
+    </div>
+
+    <div class="sidebar-section">Recursion / DP</div>
+    <div class="nav-item" onclick="showPage('backtrack')" data-page="backtrack">
+      <span class="nav-dot" style="background:#a07cf7"></span> Recursion / Backtracking
+    </div>
+    <div class="nav-item" onclick="showPage('greedy')" data-page="greedy">
+      <span class="nav-dot" style="background:#a07cf7"></span> Greedy
+    </div>
+    <div class="nav-item" onclick="showPage('dp')" data-page="dp">
+      <span class="nav-dot" style="background:#a07cf7"></span> Dynamic Programming
+    </div>
+
+    <div class="sidebar-section">Trees / Graphs</div>
+    <div class="nav-item" onclick="showPage('trees')" data-page="trees">
+      <span class="nav-dot" style="background:#f48060"></span> Trees
+    </div>
+    <div class="nav-item" onclick="showPage('graphs')" data-page="graphs">
+      <span class="nav-dot" style="background:#f48060"></span> Graphs (BFS/DFS/Topo)
+    </div>
+    <div class="nav-item" onclick="showPage('uf')" data-page="uf">
+      <span class="nav-dot" style="background:#f48060"></span> Union Find
+    </div>
+
+    <div class="sidebar-section">Advanced</div>
+    <div class="nav-item" onclick="showPage('heap')" data-page="heap">
+      <span class="nav-dot" style="background:#f5a623"></span> Heap / Priority Queue
+    </div>
+    <div class="nav-item" onclick="showPage('bit')" data-page="bit">
+      <span class="nav-dot" style="background:#f5a623"></span> Bit Manipulation
+    </div>
+    <div class="nav-item" onclick="showPage('trie')" data-page="trie">
+      <span class="nav-dot" style="background:#f5a623"></span> Trie
+    </div>
+  </nav>
+
+  <main class="main">
+
+    <!-- HOME -->
+    <div class="page active" id="page-home">
+      <div class="stats-row">
+        <div class="stat-box"><div class="stat-num" style="color:var(--blue)">15</div><div class="stat-label">Patterns</div></div>
+        <div class="stat-box"><div class="stat-num" style="color:var(--green)">~60</div><div class="stat-label">LeetCode Problems</div></div>
+        <div class="stat-box"><div class="stat-num" style="color:var(--amber)">5</div><div class="stat-label">Comparisons</div></div>
+        <div class="stat-box"><div class="stat-num" style="color:var(--purple)">30+</div><div class="stat-label">Decision Rules</div></div>
+      </div>
+      <div class="section-title">All Patterns — click to jump</div>
+      <div class="pattern-grid" id="patternGrid">
+        <div class="pattern-card" onclick="showPage('sliding')"><div class="pc-title">Sliding Window</div><div class="pc-tags">subarray · substring · k-size window</div></div>
+        <div class="pattern-card" onclick="showPage('twoptr')"><div class="pc-title">Two Pointers</div><div class="pc-tags">sorted · pair sum · palindrome</div></div>
+        <div class="pattern-card" onclick="showPage('prefix')"><div class="pc-title">Prefix Sum</div><div class="pc-tags">range sum · subarray sum = k</div></div>
+        <div class="pattern-card" onclick="showPage('hashing')"><div class="pc-title">Hashing</div><div class="pc-tags">frequency · index map · uniqueness</div></div>
+        <div class="pattern-card" onclick="showPage('bsearch')"><div class="pc-title">Binary Search</div><div class="pc-tags">sorted · search space · minimize/maximize</div></div>
+        <div class="pattern-card" onclick="showPage('backtrack')"><div class="pc-title">Recursion / Backtracking</div><div class="pc-tags">permutations · subsets · constraints</div></div>
+        <div class="pattern-card" onclick="showPage('greedy')"><div class="pc-title">Greedy</div><div class="pc-tags">local optimal · intervals · scheduling</div></div>
+        <div class="pattern-card" onclick="showPage('dp')"><div class="pc-title">Dynamic Programming</div><div class="pc-tags">overlapping · optimal substructure</div></div>
+        <div class="pattern-card" onclick="showPage('trees')"><div class="pc-title">Trees</div><div class="pc-tags">DFS · BFS · path · ancestor</div></div>
+        <div class="pattern-card" onclick="showPage('graphs')"><div class="pc-title">Graphs (BFS/DFS/Topo)</div><div class="pc-tags">connected · shortest path · cycle</div></div>
+        <div class="pattern-card" onclick="showPage('heap')"><div class="pc-title">Heap / Priority Queue</div><div class="pc-tags">top-k · kth largest · merge sorted</div></div>
+        <div class="pattern-card" onclick="showPage('mono')"><div class="pc-title">Monotonic Stack/Queue</div><div class="pc-tags">next greater · sliding window max</div></div>
+        <div class="pattern-card" onclick="showPage('bit')"><div class="pc-title">Bit Manipulation</div><div class="pc-tags">XOR · power of 2 · subset encoding</div></div>
+        <div class="pattern-card" onclick="showPage('trie')"><div class="pc-title">Trie</div><div class="pc-tags">prefix match · autocomplete · words</div></div>
+        <div class="pattern-card" onclick="showPage('uf')"><div class="pc-title">Union Find</div><div class="pc-tags">connected components · cycle detection</div></div>
+      </div>
+    </div>
+
+    <!-- SLIDING WINDOW -->
+    <div class="page" id="page-sliding">
+      <div class="page-header">
+        <div class="page-icon" style="background:var(--green-bg)">🪟</div>
+        <div><div class="page-title">Sliding Window</div><div class="page-subtitle">Variable or fixed-size window moving over array/string</div></div>
+      </div>
+      <div class="cards-grid">
+        <div class="card">
+          <div class="card-header"><span class="card-icon">📡</span><span class="card-title" style="color:var(--blue)">Recognition Signals</span></div>
+          <div class="tag-list">
+            <span class="tag blue">subarray / substring</span>
+            <span class="tag blue">contiguous elements</span>
+            <span class="tag blue">longest / shortest window</span>
+            <span class="tag blue">k distinct characters</span>
+            <span class="tag blue">at most / at least k</span>
+            <span class="tag blue">no repeating characters</span>
+            <span class="tag blue">max sum of size k</span>
+            <span class="tag blue">minimum window containing all</span>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-header"><span class="card-icon">⚖️</span><span class="card-title" style="color:var(--amber)">When to Use / Avoid</span></div>
+          <div class="use-grid">
+            <div class="use-box yes">
+              <div class="use-label">✓ Use When</div>
+              <ul>
+                <li>Contiguous subarray/substring required</li>
+                <li>Fixed or variable window size</li>
+                <li>Linear scan is enough</li>
+                <li>Frequency constraint within window</li>
+              </ul>
+            </div>
+            <div class="use-box no">
+              <div class="use-label">✗ Avoid When</div>
+              <ul>
+                <li>Non-contiguous elements needed</li>
+                <li>Elements can be reused from anywhere</li>
+                <li>Need all combinations (use backtracking)</li>
+                <li>Array is unsorted and search is needed</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="card" style="margin-bottom:14px">
+        <div class="card-header"><span class="card-icon">🧩</span><span class="card-title" style="color:var(--purple)">LeetCode Problems</span></div>
+        <table class="prob-table">
+          <tr><th>Difficulty</th><th>Problem</th><th>Key Insight</th></tr>
+          <tr><td><span class="diff E">Easy</span></td><td class="prob-name">Maximum Average Subarray I (643)</td><td class="prob-note">Fixed window of size k</td></tr>
+          <tr><td><span class="diff E">Easy</span></td><td class="prob-name">Contains Duplicate II (219)</td><td class="prob-note">Window + HashSet</td></tr>
+          <tr><td><span class="diff E">Easy</span></td><td class="prob-name">Defanging an IP Address — Best Time to Buy/Sell Stock (121)</td><td class="prob-note">Track min so far</td></tr>
+          <tr><td><span class="diff M">Medium</span></td><td class="prob-name">Longest Substring Without Repeating Characters (3)</td><td class="prob-note">Variable window + HashMap</td></tr>
+          <tr><td><span class="diff M">Medium</span></td><td class="prob-name">Longest Repeating Character Replacement (424)</td><td class="prob-note">maxFreq trick</td></tr>
+          <tr><td><span class="diff M">Medium</span></td><td class="prob-name">Permutation in String (567)</td><td class="prob-note">Fixed window + freq map</td></tr>
+          <tr><td><span class="diff H">Hard</span></td><td class="prob-name">Minimum Window Substring (76)</td><td class="prob-note">Two-pointer + freq map</td></tr>
+          <tr><td><span class="diff H">Hard</span></td><td class="prob-name">Sliding Window Maximum (239)</td><td class="prob-note">Monotonic deque</td></tr>
+        </table>
+      </div>
+    </div>
+
+    <!-- TWO POINTERS -->
+    <div class="page" id="page-twoptr">
+      <div class="page-header">
+        <div class="page-icon" style="background:var(--green-bg)">👆</div>
+        <div><div class="page-title">Two Pointers</div><div class="page-subtitle">Two indices moving toward or away from each other</div></div>
+      </div>
+      <div class="cards-grid">
+        <div class="card">
+          <div class="card-header"><span class="card-icon">📡</span><span class="card-title" style="color:var(--blue)">Recognition Signals</span></div>
+          <div class="tag-list">
+            <span class="tag blue">sorted array</span>
+            <span class="tag blue">pair / triplet with target sum</span>
+            <span class="tag blue">palindrome check</span>
+            <span class="tag blue">remove duplicates in-place</span>
+            <span class="tag blue">two sorted arrays merge</span>
+            <span class="tag blue">container with most water</span>
+            <span class="tag blue">partition array</span>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-header"><span class="card-icon">⚖️</span><span class="card-title" style="color:var(--amber)">When to Use / Avoid</span></div>
+          <div class="use-grid">
+            <div class="use-box yes">
+              <div class="use-label">✓ Use When</div>
+              <ul>
+                <li>Array is sorted (or can be sorted)</li>
+                <li>Looking for a pair meeting a condition</li>
+                <li>In-place modification needed</li>
+                <li>Comparing from both ends</li>
+              </ul>
+            </div>
+            <div class="use-box no">
+              <div class="use-label">✗ Avoid When</div>
+              <ul>
+                <li>Array is unsorted and sorting changes answer</li>
+                <li>Non-contiguous elements with complex condition</li>
+                <li>Window has frequency/map constraints (use sliding window)</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="card" style="margin-bottom:14px">
+        <div class="card-header"><span class="card-icon">🧩</span><span class="card-title" style="color:var(--purple)">LeetCode Problems</span></div>
+        <table class="prob-table">
+          <tr><th>Difficulty</th><th>Problem</th><th>Key Insight</th></tr>
+          <tr><td><span class="diff E">Easy</span></td><td class="prob-name">Valid Palindrome (125)</td><td class="prob-note">Left/right toward center</td></tr>
+          <tr><td><span class="diff E">Easy</span></td><td class="prob-name">Squares of a Sorted Array (977)</td><td class="prob-note">Two ends inward</td></tr>
+          <tr><td><span class="diff M">Medium</span></td><td class="prob-name">Two Sum II — Input Array Is Sorted (167)</td><td class="prob-note">Classic left-right</td></tr>
+          <tr><td><span class="diff M">Medium</span></td><td class="prob-name">3Sum (15)</td><td class="prob-note">Fix one, two-pointer rest</td></tr>
+          <tr><td><span class="diff M">Medium</span></td><td class="prob-name">Container With Most Water (11)</td><td class="prob-note">Move smaller side inward</td></tr>
+          <tr><td><span class="diff H">Hard</span></td><td class="prob-name">Trapping Rain Water (42)</td><td class="prob-note">Left/right max arrays</td></tr>
+          <tr><td><span class="diff H">Hard</span></td><td class="prob-name">4Sum (18)</td><td class="prob-note">Fix two, two-pointer rest</td></tr>
+        </table>
+      </div>
+    </div>
+
+    <!-- PREFIX SUM -->
+    <div class="page" id="page-prefix">
+      <div class="page-header">
+        <div class="page-icon" style="background:var(--green-bg)">∑</div>
+        <div><div class="page-title">Prefix Sum</div><div class="page-subtitle">Precompute cumulative sums for O(1) range queries</div></div>
+      </div>
+      <div class="cards-grid">
+        <div class="card">
+          <div class="card-header"><span class="card-icon">📡</span><span class="card-title" style="color:var(--blue)">Recognition Signals</span></div>
+          <div class="tag-list">
+            <span class="tag blue">range sum query</span>
+            <span class="tag blue">subarray sum = k</span>
+            <span class="tag blue">number of subarrays with sum</span>
+            <span class="tag blue">multiple queries on same array</span>
+            <span class="tag blue">2D grid sum queries</span>
+            <span class="tag blue">contiguous subarray count</span>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-header"><span class="card-icon">⚖️</span><span class="card-title" style="color:var(--amber)">When to Use / Avoid</span></div>
+          <div class="use-grid">
+            <div class="use-box yes">
+              <div class="use-label">✓ Use When</div>
+              <ul>
+                <li>Multiple range sum queries needed</li>
+                <li>Count of subarrays with exact sum</li>
+                <li>Immutable array with repeated queries</li>
+                <li>Difference arrays for range updates</li>
+              </ul>
+            </div>
+            <div class="use-box no">
+              <div class="use-label">✗ Avoid When</div>
+              <ul>
+                <li>Array is modified frequently (use Fenwick tree)</li>
+                <li>Window size is fixed (sliding window is simpler)</li>
+                <li>You only need one range sum</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="card" style="margin-bottom:14px">
+        <div class="card-header"><span class="card-icon">🧩</span><span class="card-title" style="color:var(--purple)">LeetCode Problems</span></div>
+        <table class="prob-table">
+          <tr><th>Difficulty</th><th>Problem</th><th>Key Insight</th></tr>
+          <tr><td><span class="diff E">Easy</span></td><td class="prob-name">Running Sum of 1d Array (1480)</td><td class="prob-note">Basic prefix build</td></tr>
+          <tr><td><span class="diff E">Easy</span></td><td class="prob-name">Range Sum Query — Immutable (303)</td><td class="prob-note">prefix[r] - prefix[l-1]</td></tr>
+          <tr><td><span class="diff M">Medium</span></td><td class="prob-name">Subarray Sum Equals K (560)</td><td class="prob-note">prefix + HashMap count</td></tr>
+          <tr><td><span class="diff M">Medium</span></td><td class="prob-name">Contiguous Array (525)</td><td class="prob-note">Map first occurrence of prefix</td></tr>
+          <tr><td><span class="diff M">Medium</span></td><td class="prob-name">Range Sum Query 2D — Immutable (304)</td><td class="prob-note">2D prefix sum</td></tr>
+          <tr><td><span class="diff H">Hard</span></td><td class="prob-name">Maximum Sum of 3 Non-Overlapping Subarrays (689)</td><td class="prob-note">Prefix + window combo</td></tr>
+        </table>
+      </div>
+    </div>
+
+    <!-- HASHING -->
+    <div class="page" id="page-hashing">
+      <div class="page-header">
+        <div class="page-icon" style="background:var(--green-bg)">#</div>
+        <div><div class="page-title">Hashing</div><div class="page-subtitle">HashMap / HashSet for O(1) lookups, counting, grouping</div></div>
+      </div>
+      <div class="cards-grid">
+        <div class="card">
+          <div class="card-header"><span class="card-icon">📡</span><span class="card-title" style="color:var(--blue)">Recognition Signals</span></div>
+          <div class="tag-list">
+            <span class="tag blue">two sum / pair with target</span>
+            <span class="tag blue">frequency count</span>
+            <span class="tag blue">duplicate detection</span>
+            <span class="tag blue">group / categorize elements</span>
+            <span class="tag blue">anagram check</span>
+            <span class="tag blue">first occurrence / index map</span>
+            <span class="tag blue">O(1) lookup needed</span>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-header"><span class="card-icon">⚖️</span><span class="card-title" style="color:var(--amber)">When to Use / Avoid</span></div>
+          <div class="use-grid">
+            <div class="use-box yes">
+              <div class="use-label">✓ Use When</div>
+              <ul>
+                <li>Need O(1) average lookup</li>
+                <li>Counting occurrences of elements</li>
+                <li>Grouping elements by a key</li>
+                <li>Checking membership quickly</li>
+              </ul>
+            </div>
+            <div class="use-box no">
+              <div class="use-label">✗ Avoid When</div>
+              <ul>
+                <li>Order/range matters (use sorted array)</li>
+                <li>Memory is very limited</li>
+                <li>Hash collisions cause correctness issues</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="card" style="margin-bottom:14px">
+        <div class="card-header"><span class="card-icon">🧩</span><span class="card-title" style="color:var(--purple)">LeetCode Problems</span></div>
+        <table class="prob-table">
+          <tr><th>Difficulty</th><th>Problem</th><th>Key Insight</th></tr>
+          <tr><td><span class="diff E">Easy</span></td><td class="prob-name">Two Sum (1)</td><td class="prob-note">Map value → index</td></tr>
+          <tr><td><span class="diff E">Easy</span></td><td class="prob-name">Valid Anagram (242)</td><td class="prob-note">Frequency map compare</td></tr>
+          <tr><td><span class="diff E">Easy</span></td><td class="prob-name">Contains Duplicate (217)</td><td class="prob-note">HashSet membership</td></tr>
+          <tr><td><span class="diff M">Medium</span></td><td class="prob-name">Group Anagrams (49)</td><td class="prob-note">Sort key → group list</td></tr>
+          <tr><td><span class="diff M">Medium</span></td><td class="prob-name">Top K Frequent Elements (347)</td><td class="prob-note">Freq map + bucket sort</td></tr>
+          <tr><td><span class="diff M">Medium</span></td><td class="prob-name">Longest Consecutive Sequence (128)</td><td class="prob-note">HashSet + check start</td></tr>
+          <tr><td><span class="diff H">Hard</span></td><td class="prob-name">Minimum Window Substring (76)</td><td class="prob-note">Two maps + window</td></tr>
+        </table>
+      </div>
+    </div>
+
+    <!-- BINARY SEARCH -->
+    <div class="page" id="page-bsearch">
+      <div class="page-header">
+        <div class="page-icon" style="background:var(--teal-bg)">⚡</div>
+        <div><div class="page-title">Binary Search</div><div class="page-subtitle">Eliminate half the search space each iteration — O(log n)</div></div>
+      </div>
+      <div class="cards-grid">
+        <div class="card">
+          <div class="card-header"><span class="card-icon">📡</span><span class="card-title" style="color:var(--blue)">Recognition Signals</span></div>
+          <div class="tag-list">
+            <span class="tag blue">sorted array</span>
+            <span class="tag blue">find target in sorted</span>
+            <span class="tag blue">minimize / maximize answer</span>
+            <span class="tag blue">search on answer space</span>
+            <span class="tag blue">rotated sorted array</span>
+            <span class="tag blue">find peak / boundary</span>
+            <span class="tag blue">kth smallest/largest in matrix</span>
+            <span class="tag blue">feasibility check monotone</span>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-header"><span class="card-icon">⚖️</span><span class="card-title" style="color:var(--amber)">When to Use / Avoid</span></div>
+          <div class="use-grid">
+            <div class="use-box yes">
+              <div class="use-label">✓ Use When</div>
+              <ul>
+                <li>Array or search space is sorted/monotone</li>
+                <li>Answer space is numeric and bounded</li>
+                <li>"Can we achieve X with capacity Y?" pattern</li>
+                <li>O(log n) required over O(n)</li>
+              </ul>
+            </div>
+            <div class="use-box no">
+              <div class="use-label">✗ Avoid When</div>
+              <ul>
+                <li>Array is unsorted (unless you can binary search answer)</li>
+                <li>Elements don't have monotone property</li>
+                <li>Need to find all occurrences (use bounds)</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="card" style="margin-bottom:14px">
+        <div class="card-header"><span class="card-icon">🧩</span><span class="card-title" style="color:var(--purple)">LeetCode Problems</span></div>
+        <table class="prob-table">
+          <tr><th>Difficulty</th><th>Problem</th><th>Key Insight</th></tr>
+          <tr><td><span class="diff E">Easy</span></td><td class="prob-name">Binary Search (704)</td><td class="prob-note">Classic template</td></tr>
+          <tr><td><span class="diff E">Easy</span></td><td class="prob-name">First Bad Version (278)</td><td class="prob-note">Find left boundary</td></tr>
+          <tr><td><span class="diff M">Medium</span></td><td class="prob-name">Find Minimum in Rotated Sorted Array (153)</td><td class="prob-note">Detect rotation pivot</td></tr>
+          <tr><td><span class="diff M">Medium</span></td><td class="prob-name">Search in Rotated Sorted Array (33)</td><td class="prob-note">Which half is sorted?</td></tr>
+          <tr><td><span class="diff M">Medium</span></td><td class="prob-name">Koko Eating Bananas (875)</td><td class="prob-note">Binary search on answer</td></tr>
+          <tr><td><span class="diff H">Hard</span></td><td class="prob-name">Median of Two Sorted Arrays (4)</td><td class="prob-note">Partition both arrays</td></tr>
+          <tr><td><span class="diff H">Hard</span></td><td class="prob-name">Split Array Largest Sum (410)</td><td class="prob-note">BS on sum space</td></tr>
+        </table>
+      </div>
+    </div>
+
+    <!-- BACKTRACKING -->
+    <div class="page" id="page-backtrack">
+      <div class="page-header">
+        <div class="page-icon" style="background:var(--purple-bg)">↩</div>
+        <div><div class="page-title">Recursion / Backtracking</div><div class="page-subtitle">Explore all possibilities, prune invalid branches early</div></div>
+      </div>
+      <div class="cards-grid">
+        <div class="card">
+          <div class="card-header"><span class="card-icon">📡</span><span class="card-title" style="color:var(--blue)">Recognition Signals</span></div>
+          <div class="tag-list">
+            <span class="tag blue">all permutations / combinations</span>
+            <span class="tag blue">all subsets / power set</span>
+            <span class="tag blue">generate all valid strings</span>
+            <span class="tag blue">satisfy constraints</span>
+            <span class="tag blue">N-Queens, Sudoku</span>
+            <span class="tag blue">word search on grid</span>
+            <span class="tag blue">partition into groups</span>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-header"><span class="card-icon">⚖️</span><span class="card-title" style="color:var(--amber)">When to Use / Avoid</span></div>
+          <div class="use-grid">
+            <div class="use-box yes">
+              <div class="use-label">✓ Use When</div>
+              <ul>
+                <li>Enumerate all valid configurations</li>
+                <li>Decision at each step (include/exclude)</li>
+                <li>Constraint satisfaction problem</li>
+                <li>Small input (n ≤ 20)</li>
+              </ul>
+            </div>
+            <div class="use-box no">
+              <div class="use-label">✗ Avoid When</div>
+              <ul>
+                <li>Need only one optimal answer (use DP/Greedy)</li>
+                <li>Input is large (exponential blowup)</li>
+                <li>No pruning possible (too slow)</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="card" style="margin-bottom:14px">
+        <div class="card-header"><span class="card-icon">🧩</span><span class="card-title" style="color:var(--purple)">LeetCode Problems</span></div>
+        <table class="prob-table">
+          <tr><th>Difficulty</th><th>Problem</th><th>Key Insight</th></tr>
+          <tr><td><span class="diff E">Easy</span></td><td class="prob-name">Letter Case Permutation (784)</td><td class="prob-note">Include/exclude case</td></tr>
+          <tr><td><span class="diff M">Medium</span></td><td class="prob-name">Subsets (78)</td><td class="prob-note">Include/exclude each element</td></tr>
+          <tr><td><span class="diff M">Medium</span></td><td class="prob-name">Permutations (46)</td><td class="prob-note">Swap + recurse + swap back</td></tr>
+          <tr><td><span class="diff M">Medium</span></td><td class="prob-name">Combination Sum (39)</td><td class="prob-note">Reuse elements + pruning</td></tr>
+          <tr><td><span class="diff H">Hard</span></td><td class="prob-name">N-Queens (51)</td><td class="prob-note">Column + diagonal sets</td></tr>
+          <tr><td><span class="diff H">Hard</span></td><td class="prob-name">Sudoku Solver (37)</td><td class="prob-note">Fill + validate + undo</td></tr>
+        </table>
+      </div>
+    </div>
+
+    <!-- GREEDY -->
+    <div class="page" id="page-greedy">
+      <div class="page-header">
+        <div class="page-icon" style="background:var(--purple-bg)">💰</div>
+        <div><div class="page-title">Greedy</div><div class="page-subtitle">Make locally optimal choice at each step — no reconsideration</div></div>
+      </div>
+      <div class="cards-grid">
+        <div class="card">
+          <div class="card-header"><span class="card-icon">📡</span><span class="card-title" style="color:var(--blue)">Recognition Signals</span></div>
+          <div class="tag-list">
+            <span class="tag blue">interval scheduling / merging</span>
+            <span class="tag blue">minimum cost / maximum profit</span>
+            <span class="tag blue">activity selection</span>
+            <span class="tag blue">task scheduling</span>
+            <span class="tag blue">gas station / jump game</span>
+            <span class="tag blue">assign to minimize conflicts</span>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-header"><span class="card-icon">⚖️</span><span class="card-title" style="color:var(--amber)">When to Use / Avoid</span></div>
+          <div class="use-grid">
+            <div class="use-box yes">
+              <div class="use-label">✓ Use When</div>
+              <ul>
+                <li>Local optimal leads to global optimal (provable)</li>
+                <li>Interval problems (sort by end time)</li>
+                <li>Fractional knapsack</li>
+                <li>Can prove greedy choice property</li>
+              </ul>
+            </div>
+            <div class="use-box no">
+              <div class="use-label">✗ Avoid When</div>
+              <ul>
+                <li>Choices affect future in non-obvious ways</li>
+                <li>0/1 Knapsack (use DP)</li>
+                <li>Problem has overlapping subproblems</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="card" style="margin-bottom:14px">
+        <div class="card-header"><span class="card-icon">🧩</span><span class="card-title" style="color:var(--purple)">LeetCode Problems</span></div>
+        <table class="prob-table">
+          <tr><th>Difficulty</th><th>Problem</th><th>Key Insight</th></tr>
+          <tr><td><span class="diff E">Easy</span></td><td class="prob-name">Assign Cookies (455)</td><td class="prob-note">Sort both, match smallest fit</td></tr>
+          <tr><td><span class="diff E">Easy</span></td><td class="prob-name">Lemonade Change (860)</td><td class="prob-note">Greedy with denominations</td></tr>
+          <tr><td><span class="diff M">Medium</span></td><td class="prob-name">Jump Game (55)</td><td class="prob-note">Track max reachable index</td></tr>
+          <tr><td><span class="diff M">Medium</span></td><td class="prob-name">Non-overlapping Intervals (435)</td><td class="prob-note">Sort by end, skip overlaps</td></tr>
+          <tr><td><span class="diff M">Medium</span></td><td class="prob-name">Gas Station (134)</td><td class="prob-note">Running sum, reset start</td></tr>
+          <tr><td><span class="diff H">Hard</span></td><td class="prob-name">Jump Game II (45)</td><td class="prob-note">BFS-like greedy levels</td></tr>
+        </table>
+      </div>
+    </div>
+
+    <!-- DP -->
+    <div class="page" id="page-dp">
+      <div class="page-header">
+        <div class="page-icon" style="background:var(--purple-bg)">🧮</div>
+        <div><div class="page-title">Dynamic Programming</div><div class="page-subtitle">Memoize overlapping subproblems, build bottom-up or top-down</div></div>
+      </div>
+      <div class="cards-grid">
+        <div class="card">
+          <div class="card-header"><span class="card-icon">📡</span><span class="card-title" style="color:var(--blue)">Recognition Signals</span></div>
+          <div class="tag-list">
+            <span class="tag blue">overlapping subproblems</span>
+            <span class="tag blue">optimal substructure</span>
+            <span class="tag blue">count ways to reach</span>
+            <span class="tag blue">min/max cost to reach end</span>
+            <span class="tag blue">0/1 knapsack</span>
+            <span class="tag blue">longest increasing subsequence</span>
+            <span class="tag blue">edit distance / string match</span>
+            <span class="tag blue">partition array optimally</span>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-header"><span class="card-icon">⚖️</span><span class="card-title" style="color:var(--amber)">When to Use / Avoid</span></div>
+          <div class="use-grid">
+            <div class="use-box yes">
+              <div class="use-label">✓ Use When</div>
+              <ul>
+                <li>Recursive solution has repeated subproblems</li>
+                <li>Need count of ways or min/max paths</li>
+                <li>State can be described with few variables</li>
+                <li>Greedy fails (choices affect future)</li>
+              </ul>
+            </div>
+            <div class="use-box no">
+              <div class="use-label">✗ Avoid When</div>
+              <ul>
+                <li>No overlapping subproblems (use divide & conquer)</li>
+                <li>Greedy provably works (simpler)</li>
+                <li>State space is exponentially large</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="card" style="margin-bottom:14px">
+        <div class="card-header"><span class="card-icon">🧩</span><span class="card-title" style="color:var(--purple)">LeetCode Problems</span></div>
+        <table class="prob-table">
+          <tr><th>Difficulty</th><th>Problem</th><th>Key Insight</th></tr>
+          <tr><td><span class="diff E">Easy</span></td><td class="prob-name">Climbing Stairs (70)</td><td class="prob-note">Fibonacci DP</td></tr>
+          <tr><td><span class="diff E">Easy</span></td><td class="prob-name">House Robber (198)</td><td class="prob-note">dp[i] = max(dp[i-1], dp[i-2]+nums[i])</td></tr>
+          <tr><td><span class="diff M">Medium</span></td><td class="prob-name">Coin Change (322)</td><td class="prob-note">Unbounded knapsack</td></tr>
+          <tr><td><span class="diff M">Medium</span></td><td class="prob-name">Longest Increasing Subsequence (300)</td><td class="prob-note">O(n log n) patience sort</td></tr>
+          <tr><td><span class="diff M">Medium</span></td><td class="prob-name">Unique Paths (62)</td><td class="prob-note">Grid DP</td></tr>
+          <tr><td><span class="diff H">Hard</span></td><td class="prob-name">Edit Distance (72)</td><td class="prob-note">2D string DP</td></tr>
+          <tr><td><span class="diff H">Hard</span></td><td class="prob-name">Burst Balloons (312)</td><td class="prob-note">Interval DP</td></tr>
+        </table>
+      </div>
+    </div>
+
+    <!-- TREES -->
+    <div class="page" id="page-trees">
+      <div class="page-header">
+        <div class="page-icon" style="background:var(--coral-bg)">🌲</div>
+        <div><div class="page-title">Trees</div><div class="page-subtitle">DFS (pre/in/post-order) and BFS (level-order) on tree structures</div></div>
+      </div>
+      <div class="cards-grid">
+        <div class="card">
+          <div class="card-header"><span class="card-icon">📡</span><span class="card-title" style="color:var(--blue)">Recognition Signals</span></div>
+          <div class="tag-list">
+            <span class="tag blue">binary tree / BST</span>
+            <span class="tag blue">tree height / depth</span>
+            <span class="tag blue">path sum</span>
+            <span class="tag blue">lowest common ancestor</span>
+            <span class="tag blue">serialize / deserialize tree</span>
+            <span class="tag blue">level order traversal</span>
+            <span class="tag blue">validate BST</span>
+            <span class="tag blue">diameter / balanced check</span>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-header"><span class="card-icon">⚖️</span><span class="card-title" style="color:var(--amber)">When to Use / Avoid</span></div>
+          <div class="use-grid">
+            <div class="use-box yes">
+              <div class="use-label">✓ Use When</div>
+              <ul>
+                <li>DFS for path, depth, ancestor problems</li>
+                <li>BFS for level-order / minimum depth</li>
+                <li>Inorder for BST (gives sorted order)</li>
+                <li>Post-order when child info needed first</li>
+              </ul>
+            </div>
+            <div class="use-box no">
+              <div class="use-label">✗ Avoid When</div>
+              <ul>
+                <li>Shortest path in weighted graph (use Dijkstra)</li>
+                <li>Graph has cycles (use DFS + visited set)</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="card" style="margin-bottom:14px">
+        <div class="card-header"><span class="card-icon">🧩</span><span class="card-title" style="color:var(--purple)">LeetCode Problems</span></div>
+        <table class="prob-table">
+          <tr><th>Difficulty</th><th>Problem</th><th>Key Insight</th></tr>
+          <tr><td><span class="diff E">Easy</span></td><td class="prob-name">Maximum Depth of Binary Tree (104)</td><td class="prob-note">Post-order DFS</td></tr>
+          <tr><td><span class="diff E">Easy</span></td><td class="prob-name">Invert Binary Tree (226)</td><td class="prob-note">Swap children recursively</td></tr>
+          <tr><td><span class="diff E">Easy</span></td><td class="prob-name">Symmetric Tree (101)</td><td class="prob-note">Mirror DFS</td></tr>
+          <tr><td><span class="diff M">Medium</span></td><td class="prob-name">Binary Tree Level Order Traversal (102)</td><td class="prob-note">BFS with queue</td></tr>
+          <tr><td><span class="diff M">Medium</span></td><td class="prob-name">Validate Binary Search Tree (98)</td><td class="prob-note">Pass min/max bounds</td></tr>
+          <tr><td><span class="diff M">Medium</span></td><td class="prob-name">Lowest Common Ancestor of BST (235)</td><td class="prob-note">BST property navigation</td></tr>
+          <tr><td><span class="diff H">Hard</span></td><td class="prob-name">Binary Tree Maximum Path Sum (124)</td><td class="prob-note">Post-order + global max</td></tr>
+          <tr><td><span class="diff H">Hard</span></td><td class="prob-name">Serialize and Deserialize Binary Tree (297)</td><td class="prob-note">Preorder + delimiter</td></tr>
+        </table>
+      </div>
+    </div>
+
+    <!-- GRAPHS -->
+    <div class="page" id="page-graphs">
+      <div class="page-header">
+        <div class="page-icon" style="background:var(--coral-bg)">🕸</div>
+        <div><div class="page-title">Graphs — BFS / DFS / Topological Sort</div><div class="page-subtitle">Traversal, shortest path, connectivity, ordering</div></div>
+      </div>
+      <div class="cards-grid">
+        <div class="card">
+          <div class="card-header"><span class="card-icon">📡</span><span class="card-title" style="color:var(--blue)">Recognition Signals</span></div>
+          <div class="tag-list">
+            <span class="tag blue">connected components</span>
+            <span class="tag blue">shortest path (unweighted)</span>
+            <span class="tag blue">cycle detection</span>
+            <span class="tag blue">topological sort / prerequisites</span>
+            <span class="tag blue">island count / flood fill</span>
+            <span class="tag blue">bipartite check</span>
+            <span class="tag blue">word ladder / transformation</span>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-header"><span class="card-icon">⚖️</span><span class="card-title" style="color:var(--amber)">When to Use / Avoid</span></div>
+          <div class="use-grid">
+            <div class="use-box yes">
+              <div class="use-label">✓ Use When</div>
+              <ul>
+                <li>BFS → shortest path / min steps</li>
+                <li>DFS → connected components / cycle</li>
+                <li>Topo sort → dependency ordering</li>
+                <li>Dijkstra → weighted shortest path</li>
+              </ul>
+            </div>
+            <div class="use-box no">
+              <div class="use-label">✗ Avoid When</div>
+              <ul>
+                <li>Tree problem (no cycles, no need for visited set)</li>
+                <li>Weighted shortest path without Dijkstra/Bellman-Ford</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="card" style="margin-bottom:14px">
+        <div class="card-header"><span class="card-icon">🧩</span><span class="card-title" style="color:var(--purple)">LeetCode Problems</span></div>
+        <table class="prob-table">
+          <tr><th>Difficulty</th><th>Problem</th><th>Key Insight</th></tr>
+          <tr><td><span class="diff E">Easy</span></td><td class="prob-name">Flood Fill (733)</td><td class="prob-note">DFS/BFS from start cell</td></tr>
+          <tr><td><span class="diff M">Medium</span></td><td class="prob-name">Number of Islands (200)</td><td class="prob-note">DFS + mark visited</td></tr>
+          <tr><td><span class="diff M">Medium</span></td><td class="prob-name">Course Schedule (207)</td><td class="prob-note">Topo sort / cycle detect</td></tr>
+          <tr><td><span class="diff M">Medium</span></td><td class="prob-name">Rotting Oranges (994)</td><td class="prob-note">Multi-source BFS</td></tr>
+          <tr><td><span class="diff M">Medium</span></td><td class="prob-name">Pacific Atlantic Water Flow (417)</td><td class="prob-note">Reverse BFS from edges</td></tr>
+          <tr><td><span class="diff H">Hard</span></td><td class="prob-name">Word Ladder (127)</td><td class="prob-note">BFS on word graph</td></tr>
+          <tr><td><span class="diff H">Hard</span></td><td class="prob-name">Alien Dictionary (269)</td><td class="prob-note">Topo sort from char order</td></tr>
+        </table>
+      </div>
+    </div>
+
+    <!-- HEAP -->
+    <div class="page" id="page-heap">
+      <div class="page-header">
+        <div class="page-icon" style="background:var(--amber-bg)">⛰</div>
+        <div><div class="page-title">Heap / Priority Queue</div><div class="page-subtitle">Maintain sorted-by-priority access in O(log n)</div></div>
+      </div>
+      <div class="cards-grid">
+        <div class="card">
+          <div class="card-header"><span class="card-icon">📡</span><span class="card-title" style="color:var(--blue)">Recognition Signals</span></div>
+          <div class="tag-list">
+            <span class="tag blue">top K elements</span>
+            <span class="tag blue">Kth largest / smallest</span>
+            <span class="tag blue">merge K sorted lists</span>
+            <span class="tag blue">median from data stream</span>
+            <span class="tag blue">next smallest in matrix</span>
+            <span class="tag blue">task scheduling with cooldown</span>
+            <span class="tag blue">Dijkstra's algorithm</span>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-header"><span class="card-icon">⚖️</span><span class="card-title" style="color:var(--amber)">When to Use / Avoid</span></div>
+          <div class="use-grid">
+            <div class="use-box yes">
+              <div class="use-label">✓ Use When</div>
+              <ul>
+                <li>Repeatedly need min or max element</li>
+                <li>Dynamic stream of data with K-query</li>
+                <li>Merging multiple sorted structures</li>
+                <li>Weighted graph shortest path</li>
+              </ul>
+            </div>
+            <div class="use-box no">
+              <div class="use-label">✗ Avoid When</div>
+              <ul>
+                <li>Static data — just sort it O(n log n)</li>
+                <li>Need random access (use array)</li>
+                <li>Only need a single pass max/min</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="card" style="margin-bottom:14px">
+        <div class="card-header"><span class="card-icon">🧩</span><span class="card-title" style="color:var(--purple)">LeetCode Problems</span></div>
+        <table class="prob-table">
+          <tr><th>Difficulty</th><th>Problem</th><th>Key Insight</th></tr>
+          <tr><td><span class="diff E">Easy</span></td><td class="prob-name">Last Stone Weight (1046)</td><td class="prob-note">Max-heap simulation</td></tr>
+          <tr><td><span class="diff E">Easy</span></td><td class="prob-name">Kth Largest Element in a Stream (703)</td><td class="prob-note">Min-heap of size k</td></tr>
+          <tr><td><span class="diff M">Medium</span></td><td class="prob-name">Kth Largest Element in Array (215)</td><td class="prob-note">Min-heap or quickselect</td></tr>
+          <tr><td><span class="diff M">Medium</span></td><td class="prob-name">Task Scheduler (621)</td><td class="prob-note">Max-heap + cooldown queue</td></tr>
+          <tr><td><span class="diff M">Medium</span></td><td class="prob-name">K Closest Points to Origin (973)</td><td class="prob-note">Max-heap of size k</td></tr>
+          <tr><td><span class="diff H">Hard</span></td><td class="prob-name">Find Median from Data Stream (295)</td><td class="prob-note">Two heaps (max+min)</td></tr>
+          <tr><td><span class="diff H">Hard</span></td><td class="prob-name">Merge k Sorted Lists (23)</td><td class="prob-note">Min-heap with list nodes</td></tr>
+        </table>
+      </div>
+    </div>
+
+    <!-- MONOTONIC STACK -->
+    <div class="page" id="page-mono">
+      <div class="page-header">
+        <div class="page-icon" style="background:var(--teal-bg)">📊</div>
+        <div><div class="page-title">Monotonic Stack / Queue</div><div class="page-subtitle">Maintain increasing/decreasing order for next-greater type problems</div></div>
+      </div>
+      <div class="cards-grid">
+        <div class="card">
+          <div class="card-header"><span class="card-icon">📡</span><span class="card-title" style="color:var(--blue)">Recognition Signals</span></div>
+          <div class="tag-list">
+            <span class="tag blue">next greater element</span>
+            <span class="tag blue">previous smaller element</span>
+            <span class="tag blue">largest rectangle in histogram</span>
+            <span class="tag blue">daily temperatures</span>
+            <span class="tag blue">sliding window maximum</span>
+            <span class="tag blue">online stock span</span>
+            <span class="tag blue">valid parentheses order</span>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-header"><span class="card-icon">⚖️</span><span class="card-title" style="color:var(--amber)">When to Use / Avoid</span></div>
+          <div class="use-grid">
+            <div class="use-box yes">
+              <div class="use-label">✓ Use When</div>
+              <ul>
+                <li>"Next greater/smaller" in O(n)</li>
+                <li>Sliding window min/max in O(n)</li>
+                <li>Span / visible buildings problems</li>
+              </ul>
+            </div>
+            <div class="use-box no">
+              <div class="use-label">✗ Avoid When</div>
+              <ul>
+                <li>Need global max/min (use single pass)</li>
+                <li>Data is not processed sequentially</li>
+                <li>Arbitrary window queries (use segment tree)</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="card" style="margin-bottom:14px">
+        <div class="card-header"><span class="card-icon">🧩</span><span class="card-title" style="color:var(--purple)">LeetCode Problems</span></div>
+        <table class="prob-table">
+          <tr><th>Difficulty</th><th>Problem</th><th>Key Insight</th></tr>
+          <tr><td><span class="diff E">Easy</span></td><td class="prob-name">Next Greater Element I (496)</td><td class="prob-note">Mono stack + hashmap</td></tr>
+          <tr><td><span class="diff M">Medium</span></td><td class="prob-name">Daily Temperatures (739)</td><td class="prob-note">Stack of indices</td></tr>
+          <tr><td><span class="diff M">Medium</span></td><td class="prob-name">Online Stock Span (901)</td><td class="prob-note">Stack of (price, span)</td></tr>
+          <tr><td><span class="diff M">Medium</span></td><td class="prob-name">Car Fleet (853)</td><td class="prob-note">Sort + mono stack by time</td></tr>
+          <tr><td><span class="diff H">Hard</span></td><td class="prob-name">Largest Rectangle in Histogram (84)</td><td class="prob-note">Mono increasing stack</td></tr>
+          <tr><td><span class="diff H">Hard</span></td><td class="prob-name">Sliding Window Maximum (239)</td><td class="prob-note">Mono deque (front = max)</td></tr>
+        </table>
+      </div>
+    </div>
+
+    <!-- BIT MANIPULATION -->
+    <div class="page" id="page-bit">
+      <div class="page-header">
+        <div class="page-icon" style="background:var(--amber-bg)">⊕</div>
+        <div><div class="page-title">Bit Manipulation</div><div class="page-subtitle">XOR, AND, OR, shifts for O(1) tricks and subset enumeration</div></div>
+      </div>
+      <div class="cards-grid">
+        <div class="card">
+          <div class="card-header"><span class="card-icon">📡</span><span class="card-title" style="color:var(--blue)">Recognition Signals</span></div>
+          <div class="tag-list">
+            <span class="tag blue">single number (others appear twice)</span>
+            <span class="tag blue">power of 2 check</span>
+            <span class="tag blue">count set bits</span>
+            <span class="tag blue">XOR to find missing/duplicate</span>
+            <span class="tag blue">subset enumeration with bitmask</span>
+            <span class="tag blue">swap without temp</span>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-header"><span class="card-icon">⚖️</span><span class="card-title" style="color:var(--amber)">When to Use / Avoid</span></div>
+          <div class="use-grid">
+            <div class="use-box yes">
+              <div class="use-label">✓ Use When</div>
+              <ul>
+                <li>Operations on individual bits needed</li>
+                <li>XOR trick for unique/missing element</li>
+                <li>Small n (≤20) subset enumeration</li>
+                <li>Space-O(1) replacement for hashmap</li>
+              </ul>
+            </div>
+            <div class="use-box no">
+              <div class="use-label">✗ Avoid When</div>
+              <ul>
+                <li>Problem doesn't involve integers/bits</li>
+                <li>Bitmask DP state > 2^20 (too large)</li>
+                <li>Readability matters more than micro-optimization</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="card" style="margin-bottom:14px">
+        <div class="card-header"><span class="card-icon">🧩</span><span class="card-title" style="color:var(--purple)">LeetCode Problems</span></div>
+        <table class="prob-table">
+          <tr><th>Difficulty</th><th>Problem</th><th>Key Insight</th></tr>
+          <tr><td><span class="diff E">Easy</span></td><td class="prob-name">Single Number (136)</td><td class="prob-note">XOR all elements</td></tr>
+          <tr><td><span class="diff E">Easy</span></td><td class="prob-name">Number of 1 Bits (191)</td><td class="prob-note">n & (n-1) clears lowest bit</td></tr>
+          <tr><td><span class="diff E">Easy</span></td><td class="prob-name">Power of Two (231)</td><td class="prob-note">n & (n-1) == 0</td></tr>
+          <tr><td><span class="diff M">Medium</span></td><td class="prob-name">Sum of Two Integers (371)</td><td class="prob-note">XOR sum + AND carry</td></tr>
+          <tr><td><span class="diff M">Medium</span></td><td class="prob-name">Counting Bits (338)</td><td class="prob-note">dp[i] = dp[i>>1] + (i&1)</td></tr>
+          <tr><td><span class="diff H">Hard</span></td><td class="prob-name">Maximum AND Sum of Array (2171)</td><td class="prob-note">Bitmask DP</td></tr>
+        </table>
+      </div>
+    </div>
+
+    <!-- TRIE -->
+    <div class="page" id="page-trie">
+      <div class="page-header">
+        <div class="page-icon" style="background:var(--amber-bg)">🔤</div>
+        <div><div class="page-title">Trie (Prefix Tree)</div><div class="page-subtitle">Character-by-character tree for prefix matching</div></div>
+      </div>
+      <div class="cards-grid">
+        <div class="card">
+          <div class="card-header"><span class="card-icon">📡</span><span class="card-title" style="color:var(--blue)">Recognition Signals</span></div>
+          <div class="tag-list">
+            <span class="tag blue">prefix search / autocomplete</span>
+            <span class="tag blue">word exists in dictionary</span>
+            <span class="tag blue">search with wildcards (.)</span>
+            <span class="tag blue">words with common prefix</span>
+            <span class="tag blue">replace words in sentence</span>
+            <span class="tag blue">stream of characters match</span>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-header"><span class="card-icon">⚖️</span><span class="card-title" style="color:var(--amber)">When to Use / Avoid</span></div>
+          <div class="use-grid">
+            <div class="use-box yes">
+              <div class="use-label">✓ Use When</div>
+              <ul>
+                <li>Multiple prefix queries on same word set</li>
+                <li>Wildcard character matching needed</li>
+                <li>Many shared prefixes (space efficient)</li>
+              </ul>
+            </div>
+            <div class="use-box no">
+              <div class="use-label">✗ Avoid When</div>
+              <ul>
+                <li>Simple word lookup (HashSet is enough)</li>
+                <li>No prefix operation (sorted array better)</li>
+                <li>Memory is tight (Trie has overhead)</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="card" style="margin-bottom:14px">
+        <div class="card-header"><span class="card-icon">🧩</span><span class="card-title" style="color:var(--purple)">LeetCode Problems</span></div>
+        <table class="prob-table">
+          <tr><th>Difficulty</th><th>Problem</th><th>Key Insight</th></tr>
+          <tr><td><span class="diff M">Medium</span></td><td class="prob-name">Implement Trie (208)</td><td class="prob-note">TrieNode with children array</td></tr>
+          <tr><td><span class="diff M">Medium</span></td><td class="prob-name">Design Add and Search Words Data Structure (211)</td><td class="prob-note">DFS on '.' wildcard</td></tr>
+          <tr><td><span class="diff M">Medium</span></td><td class="prob-name">Replace Words (648)</td><td class="prob-note">Trie prefix match</td></tr>
+          <tr><td><span class="diff H">Hard</span></td><td class="prob-name">Word Search II (212)</td><td class="prob-note">Trie + DFS on grid</td></tr>
+          <tr><td><span class="diff H">Hard</span></td><td class="prob-name">Concatenated Words (472)</td><td class="prob-note">Trie + DP</td></tr>
+        </table>
+      </div>
+    </div>
+
+    <!-- UNION FIND -->
+    <div class="page" id="page-uf">
+      <div class="page-header">
+        <div class="page-icon" style="background:var(--coral-bg)">🔗</div>
+        <div><div class="page-title">Union Find (Disjoint Set)</div><div class="page-subtitle">Efficiently track and merge disjoint components</div></div>
+      </div>
+      <div class="cards-grid">
+        <div class="card">
+          <div class="card-header"><span class="card-icon">📡</span><span class="card-title" style="color:var(--blue)">Recognition Signals</span></div>
+          <div class="tag-list">
+            <span class="tag blue">dynamic connectivity</span>
+            <span class="tag blue">number of connected components</span>
+            <span class="tag blue">cycle detection in undirected graph</span>
+            <span class="tag blue">union operations online</span>
+            <span class="tag blue">Kruskal's MST</span>
+            <span class="tag blue">friends / accounts merge</span>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-header"><span class="card-icon">⚖️</span><span class="card-title" style="color:var(--amber)">When to Use / Avoid</span></div>
+          <div class="use-grid">
+            <div class="use-box yes">
+              <div class="use-label">✓ Use When</div>
+              <ul>
+                <li>Dynamic merging of groups</li>
+                <li>Online union + find queries</li>
+                <li>Connectivity without full BFS/DFS</li>
+              </ul>
+            </div>
+            <div class="use-box no">
+              <div class="use-label">✗ Avoid When</div>
+              <ul>
+                <li>Directed graph (use DFS + visited)</li>
+                <li>Need path between two nodes (use BFS)</li>
+                <li>Edges are weighted (use Prim's / Dijkstra)</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="card" style="margin-bottom:14px">
+        <div class="card-header"><span class="card-icon">🧩</span><span class="card-title" style="color:var(--purple)">LeetCode Problems</span></div>
+        <table class="prob-table">
+          <tr><th>Difficulty</th><th>Problem</th><th>Key Insight</th></tr>
+          <tr><td><span class="diff E">Easy</span></td><td class="prob-name">Find if Path Exists in Graph (1971)</td><td class="prob-note">Union all edges, find source</td></tr>
+          <tr><td><span class="diff M">Medium</span></td><td class="prob-name">Number of Connected Components (323)</td><td class="prob-note">Count distinct roots</td></tr>
+          <tr><td><span class="diff M">Medium</span></td><td class="prob-name">Redundant Connection (684)</td><td class="prob-note">Edge that creates cycle</td></tr>
+          <tr><td><span class="diff M">Medium</span></td><td class="prob-name">Accounts Merge (721)</td><td class="prob-note">Email → union accounts</td></tr>
+          <tr><td><span class="diff H">Hard</span></td><td class="prob-name">Number of Islands II (305)</td><td class="prob-note">Online union as land added</td></tr>
+        </table>
+      </div>
+    </div>
+
+    <!-- COMPARE -->
+    <div class="page" id="page-compare">
+      <div class="page-header">
+        <div class="page-icon" style="background:var(--purple-bg)">⚔</div>
+        <div><div class="page-title">Cross-Pattern Comparison</div><div class="page-subtitle">Choose the right pattern when two seem applicable</div></div>
+      </div>
+
+      <div class="vs-card">
+        <div class="vs-header">Sliding Window  vs  Two Pointers</div>
+        <div class="vs-body">
+          <div class="vs-col">
+            <div class="vs-col-title" style="color:var(--blue-text)">Sliding Window</div>
+            <ul>
+              <li>Contiguous subarray / substring</li>
+              <li>Frequency / count constraint within window</li>
+              <li>Window expands/shrinks based on HashMap state</li>
+              <li>Array can be unsorted</li>
+            </ul>
+          </div>
+          <div class="vs-col">
+            <div class="vs-col-title" style="color:var(--green-text)">Two Pointers</div>
+            <ul>
+              <li>Pair / triplet sum with target</li>
+              <li>Array must be sorted (or sorting valid)</li>
+              <li>Pointers move toward each other (not same direction)</li>
+              <li>In-place modification / partition</li>
+            </ul>
+          </div>
+        </div>
+        <div class="vs-rule"><strong>Rule:</strong> If you need a HashMap inside the loop → Sliding Window. If sorted + pair search → Two Pointers.</div>
+      </div>
+
+      <div class="vs-card">
+        <div class="vs-header">BFS  vs  DFS</div>
+        <div class="vs-body">
+          <div class="vs-col">
+            <div class="vs-col-title" style="color:var(--blue-text)">BFS</div>
+            <ul>
+              <li>Shortest path in unweighted graph</li>
+              <li>Level-by-level processing needed</li>
+              <li>Minimum steps / hops</li>
+              <li>Uses Queue — iterative naturally</li>
+            </ul>
+          </div>
+          <div class="vs-col">
+            <div class="vs-col-title" style="color:var(--green-text)">DFS</div>
+            <ul>
+              <li>Connected components / flood fill</li>
+              <li>Cycle detection</li>
+              <li>Path existence / backtracking</li>
+              <li>Uses Stack / recursion naturally</li>
+            </ul>
+          </div>
+        </div>
+        <div class="vs-rule"><strong>Rule:</strong> Need shortest path or minimum steps → BFS. Need all paths, cycle, or connectivity → DFS.</div>
+      </div>
+
+      <div class="vs-card">
+        <div class="vs-header">Greedy  vs  Dynamic Programming</div>
+        <div class="vs-body">
+          <div class="vs-col">
+            <div class="vs-col-title" style="color:var(--blue-text)">Greedy</div>
+            <ul>
+              <li>Local optimal = global optimal (provable)</li>
+              <li>No backtracking needed</li>
+              <li>Interval / scheduling problems</li>
+              <li>O(n log n) after sort</li>
+            </ul>
+          </div>
+          <div class="vs-col">
+            <div class="vs-col-title" style="color:var(--green-text)">Dynamic Programming</div>
+            <ul>
+              <li>Choices affect future states</li>
+              <li>Overlapping subproblems</li>
+              <li>Count of ways, not just yes/no</li>
+              <li>0/1 decisions (include or skip)</li>
+            </ul>
+          </div>
+        </div>
+        <div class="vs-rule"><strong>Rule:</strong> Try Greedy first. If a counterexample breaks it → use DP. 0/1 Knapsack always needs DP.</div>
+      </div>
+
+      <div class="vs-card">
+        <div class="vs-header">Heap  vs  Sorting</div>
+        <div class="vs-body">
+          <div class="vs-col">
+            <div class="vs-col-title" style="color:var(--blue-text)">Heap (Priority Queue)</div>
+            <ul>
+              <li>Data arrives dynamically (stream)</li>
+              <li>Repeatedly need current min/max</li>
+              <li>k-th element with online updates</li>
+              <li>O(n log k) for top-k problems</li>
+            </ul>
+          </div>
+          <div class="vs-col">
+            <div class="vs-col-title" style="color:var(--green-text)">Sorting</div>
+            <ul>
+              <li>All data available upfront</li>
+              <li>Need full order once</li>
+              <li>Simpler code, same O(n log n)</li>
+              <li>Random access after sorting needed</li>
+            </ul>
+          </div>
+        </div>
+        <div class="vs-rule"><strong>Rule:</strong> Static data + single sort pass → Sort. Dynamic/streaming data + repeated min/max → Heap.</div>
+      </div>
+
+      <div class="vs-card">
+        <div class="vs-header">Prefix Sum  vs  Sliding Window</div>
+        <div class="vs-body">
+          <div class="vs-col">
+            <div class="vs-col-title" style="color:var(--blue-text)">Prefix Sum</div>
+            <ul>
+              <li>Count subarrays with exact sum = k</li>
+              <li>Many random range queries</li>
+              <li>Negative numbers in array</li>
+              <li>Combines with HashMap for count</li>
+            </ul>
+          </div>
+          <div class="vs-col">
+            <div class="vs-col-title" style="color:var(--green-text)">Sliding Window</div>
+            <ul>
+              <li>Longest/shortest window with constraint</li>
+              <li>All numbers non-negative (monotone sum)</li>
+              <li>Fixed window size</li>
+              <li>Window shrinks/grows dynamically</li>
+            </ul>
+          </div>
+        </div>
+        <div class="vs-rule"><strong>Rule:</strong> Contains negative numbers + exact sum count → Prefix Sum. Non-negative + max/min length window → Sliding Window.</div>
+      </div>
+    </div>
+
+    <!-- DECISION FRAMEWORK -->
+    <div class="page" id="page-decision">
+      <div class="page-header">
+        <div class="page-icon" style="background:var(--amber-bg)">🗺</div>
+        <div><div class="page-title">Decision Framework</div><div class="page-subtitle">Problem → Pattern in under 60 seconds</div></div>
+      </div>
+
+      <div class="section-title">Step 1 — Read problem type</div>
+      <div class="decision-tree">
+        <div class="dt-row"><div class="dt-if"><span>if</span>subarray / substring + contiguous constraint</div><div class="dt-then"><span class="dt-pattern">Sliding Window</span><span class="dt-why">— variable or fixed window</span><span class="dt-badge" style="background:var(--green-bg);color:var(--green-text)">Array</span></div></div>
+        <div class="dt-row"><div class="dt-if"><span>if</span>sorted array + pair/triplet sum</div><div class="dt-then"><span class="dt-pattern">Two Pointers</span><span class="dt-why">— converge from both ends</span><span class="dt-badge" style="background:var(--green-bg);color:var(--green-text)">Array</span></div></div>
+        <div class="dt-row"><div class="dt-if"><span>if</span>range sum query or subarray sum = k</div><div class="dt-then"><span class="dt-pattern">Prefix Sum</span><span class="dt-why">— precompute + HashMap</span><span class="dt-badge" style="background:var(--green-bg);color:var(--green-text)">Array</span></div></div>
+        <div class="dt-row"><div class="dt-if"><span>if</span>frequency / duplicate / O(1) lookup</div><div class="dt-then"><span class="dt-pattern">Hashing</span><span class="dt-why">— HashMap or HashSet</span><span class="dt-badge" style="background:var(--green-bg);color:var(--green-text)">Array</span></div></div>
+        <div class="dt-row"><div class="dt-if"><span>if</span>sorted + search / minimize-maximize answer</div><div class="dt-then"><span class="dt-pattern">Binary Search</span><span class="dt-why">— search on value space</span><span class="dt-badge" style="background:var(--teal-bg);color:var(--teal-text)">Search</span></div></div>
+        <div class="dt-row"><div class="dt-if"><span>if</span>next greater/smaller / sliding max</div><div class="dt-then"><span class="dt-pattern">Monotonic Stack/Queue</span><span class="dt-why">— maintain order property</span><span class="dt-badge" style="background:var(--teal-bg);color:var(--teal-text)">Search</span></div></div>
+        <div class="dt-row"><div class="dt-if"><span>if</span>all permutations / subsets / combinations</div><div class="dt-then"><span class="dt-pattern">Backtracking</span><span class="dt-why">— enumerate + prune</span><span class="dt-badge" style="background:var(--purple-bg);color:var(--purple-text)">Recursion</span></div></div>
+        <div class="dt-row"><div class="dt-if"><span>if</span>local optimal = global optimal + no reconsider</div><div class="dt-then"><span class="dt-pattern">Greedy</span><span class="dt-why">— intervals, scheduling</span><span class="dt-badge" style="background:var(--purple-bg);color:var(--purple-text)">Recursion</span></div></div>
+        <div class="dt-row"><div class="dt-if"><span>if</span>overlapping subproblems + optimal value</div><div class="dt-then"><span class="dt-pattern">Dynamic Programming</span><span class="dt-why">— memoize states</span><span class="dt-badge" style="background:var(--purple-bg);color:var(--purple-text)">Recursion</span></div></div>
+        <div class="dt-row"><div class="dt-if"><span>if</span>binary tree / BST traversal or path</div><div class="dt-then"><span class="dt-pattern">Tree DFS / BFS</span><span class="dt-why">— post/pre/in-order</span><span class="dt-badge" style="background:var(--coral-bg);color:var(--coral-text)">Tree</span></div></div>
+        <div class="dt-row"><div class="dt-if"><span>if</span>shortest path (unweighted)</div><div class="dt-then"><span class="dt-pattern">BFS</span><span class="dt-why">— level-by-level expansion</span><span class="dt-badge" style="background:var(--coral-bg);color:var(--coral-text)">Graph</span></div></div>
+        <div class="dt-row"><div class="dt-if"><span>if</span>connected components / cycle / flood fill</div><div class="dt-then"><span class="dt-pattern">DFS</span><span class="dt-why">— mark visited, recurse</span><span class="dt-badge" style="background:var(--coral-bg);color:var(--coral-text)">Graph</span></div></div>
+        <div class="dt-row"><div class="dt-if"><span>if</span>prerequisites / dependency ordering</div><div class="dt-then"><span class="dt-pattern">Topological Sort</span><span class="dt-why">— Kahn's BFS or DFS</span><span class="dt-badge" style="background:var(--coral-bg);color:var(--coral-text)">Graph</span></div></div>
+        <div class="dt-row"><div class="dt-if"><span>if</span>shortest path (weighted, no negative edges)</div><div class="dt-then"><span class="dt-pattern">Dijkstra (Heap + BFS)</span><span class="dt-why">— min-heap on distances</span><span class="dt-badge" style="background:var(--coral-bg);color:var(--coral-text)">Graph</span></div></div>
+        <div class="dt-row"><div class="dt-if"><span>if</span>dynamic connectivity / union groups</div><div class="dt-then"><span class="dt-pattern">Union Find</span><span class="dt-why">— path compress + rank</span><span class="dt-badge" style="background:var(--coral-bg);color:var(--coral-text)">Graph</span></div></div>
+        <div class="dt-row"><div class="dt-if"><span>if</span>top-K / Kth largest / merge K sorted</div><div class="dt-then"><span class="dt-pattern">Heap</span><span class="dt-why">— min or max heap of size k</span><span class="dt-badge" style="background:var(--amber-bg);color:var(--amber-text)">Advanced</span></div></div>
+        <div class="dt-row"><div class="dt-if"><span>if</span>prefix search / autocomplete / wildcard</div><div class="dt-then"><span class="dt-pattern">Trie</span><span class="dt-why">— char-by-char tree</span><span class="dt-badge" style="background:var(--amber-bg);color:var(--amber-text)">Advanced</span></div></div>
+        <div class="dt-row"><div class="dt-if"><span>if</span>XOR / unique element / power of 2 / bitmask</div><div class="dt-then"><span class="dt-pattern">Bit Manipulation</span><span class="dt-why">— use XOR, AND, shifts</span><span class="dt-badge" style="background:var(--amber-bg);color:var(--amber-text)">Advanced</span></div></div>
+      </div>
+
+      <div class="section-title" style="margin-top:32px">Step 2 — Verify with complexity</div>
+      <div class="cards-grid three" style="margin-top:0">
+        <div class="card">
+          <div class="card-header"><span class="card-title" style="color:var(--green)">O(n) Target</span></div>
+          <ul class="bullet-list green">
+            <li>Sliding Window</li>
+            <li>Two Pointers</li>
+            <li>Prefix Sum (after build)</li>
+            <li>Hashing</li>
+            <li>Monotonic Stack</li>
+          </ul>
+        </div>
+        <div class="card">
+          <div class="card-header"><span class="card-title" style="color:var(--amber)">O(n log n) Target</span></div>
+          <ul class="bullet-list">
+            <li>Binary Search variants</li>
+            <li>Heap (top-k)</li>
+            <li>Greedy + sort</li>
+            <li>BFS/DFS on graph (E+V)</li>
+            <li>Topo sort (E+V)</li>
+          </ul>
+        </div>
+        <div class="card">
+          <div class="card-header"><span class="card-title" style="color:var(--red)">Exponential — Careful</span></div>
+          <ul class="bullet-list red">
+            <li>Backtracking 2^n or n!</li>
+            <li>DP with large state space</li>
+            <li>Brute force (need pruning)</li>
+            <li>Bitmask DP (2^n states)</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="section-title" style="margin-top:32px">Step 3 — Quick elimination checklist</div>
+      <div class="card" style="margin-top:0">
+        <table class="prob-table">
+          <tr><th>Question to ask</th><th>If YES</th><th>If NO</th></tr>
+          <tr><td>Is array sorted (or can sort)?</td><td class="prob-note" style="color:var(--green-text)">Binary Search / Two Pointers</td><td class="prob-note">Hashing / Sliding Window</td></tr>
+          <tr><td>Are elements contiguous?</td><td class="prob-note" style="color:var(--green-text)">Sliding Window / Prefix Sum</td><td class="prob-note">Backtracking / DP</td></tr>
+          <tr><td>Is it a tree/graph structure?</td><td class="prob-note" style="color:var(--green-text)">DFS / BFS / Union Find</td><td class="prob-note">Array patterns</td></tr>
+          <tr><td>Do choices affect each other?</td><td class="prob-note" style="color:var(--green-text)">DP (not Greedy)</td><td class="prob-note">Greedy is likely fine</td></tr>
+          <tr><td>Need all valid configurations?</td><td class="prob-note" style="color:var(--green-text)">Backtracking</td><td class="prob-note">DP / Greedy for optimal only</td></tr>
+          <tr><td>Is it a "top-K" or "Kth" query?</td><td class="prob-note" style="color:var(--green-text)">Heap (dynamic) or Sort (static)</td><td class="prob-note">Other pattern</td></tr>
+          <tr><td>Is data a graph with ordering?</td><td class="prob-note" style="color:var(--green-text)">Topological Sort</td><td class="prob-note">BFS/DFS for traversal</td></tr>
+          <tr><td>Does problem involve XOR / bits?</td><td class="prob-note" style="color:var(--green-text)">Bit Manipulation</td><td class="prob-note">Ignore bit tricks</td></tr>
+        </table>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<script>
+function showPage(id) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  const pg = document.getElementById('page-' + id);
+  if (pg) pg.classList.add('active');
+  const nav = document.querySelector('[data-page="' + id + '"]');
+  if (nav) { nav.classList.add('active'); nav.scrollIntoView({block:'nearest'}); }
+}
+
+function handleSearch(q) {
+  q = q.toLowerCase().trim();
+  if (!q) {
+    document.querySelectorAll('.pattern-card').forEach(c => c.style.display = '');
+    return;
+  }
+  document.querySelectorAll('.pattern-card').forEach(c => {
+    const txt = c.textContent.toLowerCase();
+    c.style.display = txt.includes(q) ? '' : 'none';
+  });
+  showPage('home');
+}
+</script>
+</body>
+</html>
