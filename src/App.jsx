@@ -1,282 +1,360 @@
 import { useEffect, useState } from 'react'
-import { createPortal } from 'react-dom'
+import { legacyStyles, legacyTree } from './contentModel'
 
-const LEGACY_SOURCE = '/legacy-content.html'
 const FRAMEWORK_PAGE_IDS = ['home', 'decision', 'compare']
+const VOID_TAGS = new Set([
+  'area',
+  'base',
+  'br',
+  'col',
+  'embed',
+  'hr',
+  'img',
+  'input',
+  'link',
+  'meta',
+  'param',
+  'source',
+  'track',
+  'wbr',
+])
 
-function setupLegacyHandlers() {
-  window.showPage = function showPage(id) {
-    document.querySelectorAll('.page').forEach((page) => page.classList.remove('active'))
-    document.querySelectorAll('.nav-item').forEach((navItem) => navItem.classList.remove('active'))
+const styleCache = new Map()
 
-    const page = document.getElementById(`page-${id}`)
-    if (page) {
-      page.classList.add('active')
-    }
-
-    const nav = document.querySelector(`[data-page="${id}"]`)
-    if (nav) {
-      nav.classList.add('active')
-      nav.scrollIntoView({ block: 'nearest' })
-    }
+function parseInlineStyle(styleText = '') {
+  if (!styleText) {
+    return undefined
   }
 
-  window.handleSearch = function handleSearch(query) {
-    const normalizedQuery = query.toLowerCase().trim()
+  if (styleCache.has(styleText)) {
+    return styleCache.get(styleText)
+  }
 
-    if (!normalizedQuery) {
-      document.querySelectorAll('.pattern-card').forEach((card) => {
-        card.style.display = ''
-      })
-      return
-    }
-
-    document.querySelectorAll('.pattern-card').forEach((card) => {
-      const text = card.textContent.toLowerCase()
-      card.style.display = text.includes(normalizedQuery) ? '' : 'none'
+  const styleObject = {}
+  styleText
+    .split(';')
+    .map((pair) => pair.trim())
+    .filter(Boolean)
+    .forEach((pair) => {
+      const separatorIndex = pair.indexOf(':')
+      if (separatorIndex < 0) {
+        return
+      }
+      const key = pair.slice(0, separatorIndex).trim()
+      const value = pair.slice(separatorIndex + 1).trim()
+      if (!key || !value) {
+        return
+      }
+      const camelKey = key.replace(/-([a-z])/g, (_, letter) => letter.toUpperCase())
+      styleObject[camelKey] = value
     })
 
-    window.showPage('home')
+  styleCache.set(styleText, styleObject)
+  return styleObject
+}
+
+function classTokens(className = '') {
+  return className.split(/\s+/).filter(Boolean)
+}
+
+function hasClass(node, className) {
+  return classTokens(node.attrs?.class ?? '').includes(className)
+}
+
+function getNodeText(node) {
+  if (!node) {
+    return ''
+  }
+  if (node.type === 'text') {
+    return node.text
+  }
+  return (node.children ?? []).map(getNodeText).join('')
+}
+
+function parseShowPageTarget(onclick = '') {
+  const match = onclick.match(/showPage\('([^']+)'\)/)
+  return match ? match[1] : null
+}
+
+function normalizeLabel(text) {
+  return text.replace(/\s+/g, ' ').trim()
+}
+
+function findFirstElement(nodes, predicate) {
+  return nodes.find((node) => node.type === 'element' && predicate(node))
+}
+
+function extractBaseLayout(tree) {
+  const topbarNode = findFirstElement(tree, (node) => hasClass(node, 'topbar'))
+  const layoutNode = findFirstElement(tree, (node) => hasClass(node, 'layout'))
+  if (!topbarNode || !layoutNode) {
+    throw new Error('Could not build layout model from content tree')
+  }
+
+  const sidebarNode = findFirstElement(layoutNode.children ?? [], (node) => node.tag === 'nav')
+  const mainNode = findFirstElement(layoutNode.children ?? [], (node) => node.tag === 'main')
+  if (!sidebarNode || !mainNode) {
+    throw new Error('Could not extract sidebar/main from content tree')
+  }
+
+  return { topbarNode, sidebarNode, mainNode }
+}
+
+function extractTopbarInfo(topbarNode) {
+  const titleNode = findFirstElement(topbarNode.children ?? [], (node) => node.tag === 'h1')
+  const badgeNode = findFirstElement(topbarNode.children ?? [], (node) => hasClass(node, 'badge'))
+  return {
+    title: normalizeLabel(getNodeText(titleNode) || 'DSA Pattern Recognition'),
+    badge: normalizeLabel(getNodeText(badgeNode) || ''),
   }
 }
 
-function cleanupLegacyHandlers() {
-  delete window.showPage
-  delete window.handleSearch
+function extractNavDotColor(navItemNode) {
+  const dotNode = findFirstElement(navItemNode.children ?? [], (node) => hasClass(node, 'nav-dot'))
+  const style = parseInlineStyle(dotNode?.attrs?.style ?? '')
+  return style?.background ?? 'var(--blue)'
 }
 
-function normalizeProblemTables() {
-  const problemTables = Array.from(document.querySelectorAll('.prob-table')).filter((table) =>
-    table.querySelector('td.prob-name'),
-  )
+function extractNavigation(sidebarNode) {
+  const sections = []
+  const itemsById = {}
+  let currentSection = null
 
-  problemTables.forEach((table) => {
-    const rows = Array.from(table.querySelectorAll('tr'))
-    if (!rows.length) {
-      return
+  for (const child of sidebarNode.children ?? []) {
+    if (child.type !== 'element') {
+      continue
     }
-
-    rows[0].innerHTML =
-      '<th>Problem no.</th><th>Problem name</th><th>Difficulty</th><th>Key Insight</th>'
-
-    for (let index = 1; index < rows.length; index += 1) {
-      const row = rows[index]
-      const cells = row.querySelectorAll('td')
-
-      if (cells.length < 3) {
+    if (hasClass(child, 'sidebar-section')) {
+      currentSection = {
+        title: normalizeLabel(getNodeText(child)),
+        items: [],
+      }
+      sections.push(currentSection)
+      continue
+    }
+    if (hasClass(child, 'nav-item')) {
+      const pageId = child.attrs?.['data-page'] ?? parseShowPageTarget(child.attrs?.onclick ?? '') ?? ''
+      if (!pageId) {
         continue
       }
-
-      const difficultyCell = cells[0]
-      const problemCell = cells[1]
-      const insightCell = cells[2]
-      const rawProblemText = problemCell.textContent.trim()
-      const match = rawProblemText.match(/^(.*)\((\d+)\)\s*$/)
-      const problemNo = match ? match[2] : '—'
-      const problemName = match ? match[1].trim() : rawProblemText
-      const searchQuery = match ? `${problemNo} ${problemName}` : problemName
-      const problemLink = `https://leetcode.com/problemset/?search=${encodeURIComponent(searchQuery)}`
-
-      row.innerHTML = ''
-
-      const numberTd = document.createElement('td')
-      numberTd.className = 'prob-no'
-      numberTd.textContent = problemNo
-
-      const nameTd = document.createElement('td')
-      nameTd.className = 'prob-name'
-      const anchor = document.createElement('a')
-      anchor.className = 'lc-link'
-      anchor.href = problemLink
-      anchor.target = '_blank'
-      anchor.rel = 'noreferrer noopener'
-      anchor.textContent = problemName
-      nameTd.appendChild(anchor)
-
-      const difficultyTd = document.createElement('td')
-      difficultyTd.className = difficultyCell.className
-      difficultyTd.innerHTML = difficultyCell.innerHTML
-
-      const insightTd = document.createElement('td')
-      insightTd.className = insightCell.className
-      insightTd.innerHTML = insightCell.innerHTML
-
-      row.append(numberTd, nameTd, difficultyTd, insightTd)
+      const item = {
+        id: pageId,
+        label: normalizeLabel(getNodeText(child)),
+        color: extractNavDotColor(child),
+        isSub: hasClass(child, 'nav-sub'),
+      }
+      if (currentSection) {
+        currentSection.items.push(item)
+      }
+      itemsById[item.id] = item
     }
-  })
-}
-
-function getActiveSectionLabel() {
-  const activeNav = document.querySelector('.nav-item.active')
-  if (!activeNav) {
-    return 'Pattern Map'
-  }
-  return activeNav.textContent.replace(/\s+/g, ' ').trim()
-}
-
-function getActivePageId() {
-  const activeNav = document.querySelector('.nav-item.active')
-  if (!activeNav) {
-    return 'home'
-  }
-  return activeNav.getAttribute('data-page') ?? 'home'
-}
-
-function extractFrameworkTabs() {
-  const frameworkPages = new Set(FRAMEWORK_PAGE_IDS)
-  return Array.from(document.querySelectorAll('.nav-item'))
-    .filter((item) => frameworkPages.has(item.getAttribute('data-page')))
-    .map((item) => {
-      const pageId = item.getAttribute('data-page') ?? ''
-      const label = item.textContent.replace(/\s+/g, ' ').trim()
-      const dotElement = item.querySelector('.nav-dot')
-      const color = dotElement ? window.getComputedStyle(dotElement).backgroundColor : 'var(--blue)'
-      return { id: pageId, label, color }
-    })
-}
-
-function decorateSidebarNavigation() {
-  const sidebar = document.querySelector('.sidebar')
-  if (!sidebar) {
-    return
   }
 
-  const overviewPages = new Set(['home', 'decision', 'compare'])
-  sidebar.querySelectorAll('.nav-item').forEach((item) => {
-    const page = item.getAttribute('data-page')
-    const isOverview = overviewPages.has(page)
-    item.classList.toggle('nav-item-overview', isOverview)
-    item.classList.toggle('nav-item-topic', !isOverview)
-  })
+  const frameworkTabs = sections
+    .flatMap((section) => section.items)
+    .filter((item) => FRAMEWORK_PAGE_IDS.includes(item.id))
 
-  const sections = Array.from(sidebar.querySelectorAll('.sidebar-section'))
-  sections.forEach((section) => {
-    const text = section.textContent.trim().toLowerCase()
-    const isOverview = text === 'overview'
-    section.classList.toggle('sidebar-section-overview', isOverview)
-    section.classList.toggle('sidebar-section-topics', !isOverview)
-  })
+  const topicSections = sections
+    .map((section) => ({
+      ...section,
+      items: section.items.filter((item) => !FRAMEWORK_PAGE_IDS.includes(item.id)),
+    }))
+    .filter((section) => section.items.length > 0)
 
-  const hasTopicDivider = sidebar.querySelector('.topic-divider')
-  const firstTopicSection = sections.find((section) => section.classList.contains('sidebar-section-topics'))
-  if (!hasTopicDivider && firstTopicSection) {
-    const divider = document.createElement('div')
-    divider.className = 'topic-divider'
-    divider.textContent = 'Topic Library'
-    sidebar.insertBefore(divider, firstTopicSection)
+  return { sections, topicSections, frameworkTabs, itemsById }
+}
+
+function extractPages(mainNode) {
+  return (mainNode.children ?? [])
+    .filter((node) => node.type === 'element' && node.tag === 'div' && hasClass(node, 'page'))
+    .map((node) => ({
+      id: (node.attrs?.id ?? '').replace(/^page-/, ''),
+      node,
+    }))
+    .filter((page) => page.id)
+}
+
+const baseLayout = extractBaseLayout(legacyTree)
+const topbarInfo = extractTopbarInfo(baseLayout.topbarNode)
+const navigation = extractNavigation(baseLayout.sidebarNode)
+const pages = extractPages(baseLayout.mainNode)
+const pageIds = new Set(pages.map((page) => page.id))
+
+function toReactProps(node) {
+  const props = {}
+  for (const [name, rawValue] of Object.entries(node.attrs ?? {})) {
+    if (name === 'class' || name === 'style' || name === 'onclick' || name === 'oninput') {
+      continue
+    }
+    const value = rawValue === '' ? true : rawValue
+    if (name === 'for') {
+      props.htmlFor = value
+    } else if (name === 'colspan') {
+      props.colSpan = Number(value) || value
+    } else if (name === 'rowspan') {
+      props.rowSpan = Number(value) || value
+    } else if (name === 'tabindex') {
+      props.tabIndex = Number(value) || value
+    } else {
+      props[name] = value
+    }
   }
+
+  const styleObject = parseInlineStyle(node.attrs?.style ?? '')
+  if (styleObject && Object.keys(styleObject).length > 0) {
+    props.style = styleObject
+  }
+  return props
+}
+
+function tableLooksLikeProblemTable(node) {
+  if (!hasClass(node, 'prob-table')) {
+    return false
+  }
+  const rows = (node.children ?? []).filter((child) => child.type === 'element' && child.tag === 'tr')
+  return rows.some((row) =>
+    (row.children ?? []).some((cell) => cell.type === 'element' && hasClass(cell, 'prob-name')),
+  )
+}
+
+function isDifficultyHeader(rowNode) {
+  const headerText = normalizeLabel(getNodeText(rowNode)).toLowerCase()
+  return headerText.includes('difficulty') && headerText.includes('problem')
+}
+
+function findProblemMeta(problemText) {
+  const match = problemText.match(/^(.*)\((\d+)\)\s*$/)
+  if (!match) {
+    return { number: '—', name: problemText, query: problemText }
+  }
+  const name = match[1].trim()
+  const number = match[2]
+  return {
+    number,
+    name,
+    query: `${number} ${name}`,
+  }
+}
+
+function renderProblemTable(node, context, keyPrefix) {
+  const rows = (node.children ?? []).filter((child) => child.type === 'element' && child.tag === 'tr')
+  const props = {
+    ...toReactProps(node),
+    key: keyPrefix,
+    className: node.attrs?.class ?? '',
+  }
+
+  const bodyRows = rows.filter((row) => !isDifficultyHeader(row))
+
+  return (
+    <table {...props}>
+      <tr key={`${keyPrefix}-header`}>
+        <th>Problem no.</th>
+        <th>Problem name</th>
+        <th>Difficulty</th>
+        <th>Key Insight</th>
+      </tr>
+      {bodyRows.map((row, rowIndex) => {
+        const cells = (row.children ?? []).filter((child) => child.type === 'element' && child.tag === 'td')
+        if (cells.length < 3) {
+          return renderNode(row, context, `${keyPrefix}-row-${rowIndex}`)
+        }
+
+        const difficultyCell = cells[0]
+        const problemCell = cells[1]
+        const insightCell = cells[2]
+        const problemText = normalizeLabel(getNodeText(problemCell))
+        const problemMeta = findProblemMeta(problemText)
+        const problemLink = `https://leetcode.com/problemset/?search=${encodeURIComponent(problemMeta.query)}`
+
+        return (
+          <tr key={`${keyPrefix}-row-${rowIndex}`}>
+            <td className="prob-no">{problemMeta.number}</td>
+            <td className="prob-name">
+              <a className="lc-link" href={problemLink} target="_blank" rel="noreferrer noopener">
+                {problemMeta.name}
+              </a>
+            </td>
+            <td className={difficultyCell.attrs?.class ?? ''}>
+              {renderNodes(difficultyCell.children ?? [], context, `${keyPrefix}-diff-${rowIndex}`)}
+            </td>
+            <td className={insightCell.attrs?.class ?? ''}>
+              {renderNodes(insightCell.children ?? [], context, `${keyPrefix}-insight-${rowIndex}`)}
+            </td>
+          </tr>
+        )
+      })}
+    </table>
+  )
+}
+
+function renderNodes(nodes, context, keyPrefix) {
+  return nodes
+    .map((node, index) => renderNode(node, context, `${keyPrefix}-${index}`))
+    .filter((node) => node !== null)
+}
+
+function renderNode(node, context, keyPath) {
+  if (node.type === 'text') {
+    return node.text
+  }
+
+  if (node.type !== 'element') {
+    return null
+  }
+
+  if (node.tag === 'script') {
+    return null
+  }
+
+  if (tableLooksLikeProblemTable(node)) {
+    return renderProblemTable(node, context, keyPath)
+  }
+
+  const props = toReactProps(node)
+  props.key = keyPath
+
+  const className = node.attrs?.class ?? ''
+  if (className) {
+    props.className = className
+  }
+
+  const cardTarget = parseShowPageTarget(node.attrs?.onclick ?? '')
+  if (hasClass(node, 'pattern-card') && cardTarget && pageIds.has(cardTarget)) {
+    const cardText = normalizeLabel(getNodeText(node)).toLowerCase()
+    if (context.query && !cardText.includes(context.query)) {
+      return null
+    }
+    props.onClick = () => context.onNavigate(cardTarget)
+  }
+
+  const Tag = node.tag
+  if (VOID_TAGS.has(node.tag)) {
+    return <Tag {...props} />
+  }
+
+  return <Tag {...props}>{renderNodes(node.children ?? [], context, keyPath)}</Tag>
 }
 
 export default function App() {
-  const [legacyStyles, setLegacyStyles] = useState('')
-  const [legacyMarkup, setLegacyMarkup] = useState('')
-  const [loadError, setLoadError] = useState('')
-  const [topbarElement, setTopbarElement] = useState(null)
-  const [activeSection, setActiveSection] = useState('Pattern Map')
   const [activePageId, setActivePageId] = useState('home')
-  const [frameworkTabs, setFrameworkTabs] = useState([])
+  const [searchQuery, setSearchQuery] = useState('')
   const [theme, setTheme] = useState(() => {
     const savedTheme = window.localStorage.getItem('dsa-theme')
     return savedTheme === 'light' ? 'light' : 'dark'
   })
 
   useEffect(() => {
-    let mounted = true
-
-    setupLegacyHandlers()
-
-    fetch(LEGACY_SOURCE)
-      .then((response) => {
-        if (!response.ok) {
-          throw new Error(`Unable to load legacy content (${response.status})`)
-        }
-        return response.text()
-      })
-      .then((htmlText) => {
-        if (!mounted) {
-          return
-        }
-
-        const doc = new DOMParser().parseFromString(htmlText, 'text/html')
-
-        doc.querySelectorAll('script').forEach((scriptEl) => scriptEl.remove())
-
-        const styleText = doc.querySelector('style')?.textContent ?? ''
-        const bodyHtml = doc.body?.innerHTML ?? ''
-
-        setLegacyStyles(styleText)
-        setLegacyMarkup(bodyHtml)
-      })
-      .catch((error) => {
-        if (mounted) {
-          setLoadError(error.message)
-        }
-      })
-
-    return () => {
-      mounted = false
-      cleanupLegacyHandlers()
-    }
-  }, [])
-
-  useEffect(() => {
     window.localStorage.setItem('dsa-theme', theme)
     document.body.setAttribute('data-theme', theme)
   }, [theme])
 
-  useEffect(() => {
-    if (!legacyMarkup) {
-      return
-    }
-
-    setTopbarElement(document.querySelector('.topbar'))
-    normalizeProblemTables()
-    decorateSidebarNavigation()
-    setFrameworkTabs(extractFrameworkTabs())
-    setActiveSection(getActiveSectionLabel())
-    setActivePageId(getActivePageId())
-  }, [legacyMarkup])
-
-  useEffect(() => {
-    if (!legacyMarkup) {
-      return
-    }
-
-    const sidebar = document.querySelector('.sidebar')
-    if (!sidebar) {
-      return
-    }
-
-    const syncActiveSection = () => {
-      setActiveSection(getActiveSectionLabel())
-      setActivePageId(getActivePageId())
-    }
-
-    const observer = new MutationObserver(syncActiveSection)
-    observer.observe(sidebar, {
-      subtree: true,
-      attributes: true,
-      attributeFilter: ['class'],
-    })
-    sidebar.addEventListener('click', syncActiveSection)
-
-    return () => {
-      observer.disconnect()
-      sidebar.removeEventListener('click', syncActiveSection)
-    }
-  }, [legacyMarkup])
-
-  if (loadError) {
-    return (
-      <main style={{ padding: '2rem', fontFamily: 'system-ui, sans-serif' }}>
-        <h1>Failed to load content</h1>
-        <p>{loadError}</p>
-      </main>
-    )
-  }
+  const normalizedQuery = searchQuery.toLowerCase().trim()
+  const activeSectionLabel = navigation.itemsById[activePageId]?.label ?? 'Pattern Map'
+  const isFrameworkPage = FRAMEWORK_PAGE_IDS.includes(activePageId)
 
   return (
-    <>
+    <div className={`legacy-shell theme-${theme}`}>
       <style>{legacyStyles}</style>
       <style>{`
         body[data-theme='dark'] {
@@ -463,12 +541,6 @@ export default function App() {
           padding: 10px 14px 6px;
         }
 
-        .legacy-shell .sidebar-section-overview {
-          color: var(--blue);
-          letter-spacing: 0.09em;
-          display: none;
-        }
-
         .legacy-shell .sidebar-section-topics {
           color: var(--text3);
           letter-spacing: 0.1em;
@@ -492,12 +564,18 @@ export default function App() {
           padding: 8px 10px;
         }
 
-        .legacy-shell .nav-item-overview {
-          display: none;
-        }
-
         .legacy-shell .nav-item-topic {
           margin: 2px 4px;
+        }
+
+        .legacy-shell .nav-sub {
+          padding-left: 24px;
+          font-size: 12px;
+        }
+
+        .legacy-shell .nav-sub .nav-dot {
+          width: 5px;
+          height: 5px;
         }
 
         .legacy-shell .nav-item.active {
@@ -585,14 +663,6 @@ export default function App() {
           color: #fecaca;
         }
 
-        .legacy-shell .theme-toggle-btn {
-          margin-left: 0;
-          padding: 0;
-          border: none;
-          background: transparent;
-          cursor: pointer;
-        }
-
         .legacy-shell .topbar-context {
           display: flex;
           align-items: center;
@@ -663,6 +733,14 @@ export default function App() {
           overflow: hidden;
           text-overflow: ellipsis;
           white-space: nowrap;
+        }
+
+        .legacy-shell .theme-toggle-btn {
+          margin-left: 0;
+          padding: 0;
+          border: none;
+          background: transparent;
+          cursor: pointer;
         }
 
         .legacy-shell .theme-toggle-track {
@@ -801,60 +879,113 @@ export default function App() {
           }
         }
       `}</style>
-      <div className={`legacy-shell theme-${theme}`}>
-        {topbarElement &&
-          createPortal(
-            <>
-              <div className="topbar-context">
-                {frameworkTabs.length > 0 && (
-                  <div className="framework-tabs">
-                    {frameworkTabs.map((tab) => (
-                      <button
-                        key={tab.id}
-                        type="button"
-                        className={`framework-tab-btn ${activePageId === tab.id ? 'active' : ''}`}
-                        onClick={() => window.showPage(tab.id)}
-                      >
-                        <span className="framework-tab-dot" style={{ background: tab.color }} />
-                        {tab.label}
-                      </button>
-                    ))}
-                  </div>
-                )}
-                {!FRAMEWORK_PAGE_IDS.includes(activePageId) && (
-                  <span className="active-section-pill" title={activeSection}>
-                    {activeSection}
-                  </span>
-                )}
-              </div>
-              <div className="topbar-toggle-wrap">
+
+      <div className="topbar">
+        <h1>{topbarInfo.title}</h1>
+        {topbarInfo.badge && <span className="badge">{topbarInfo.badge}</span>}
+
+        <div className="topbar-context">
+          {navigation.frameworkTabs.length > 0 && (
+            <div className="framework-tabs">
+              {navigation.frameworkTabs.map((tab) => (
                 <button
+                  key={tab.id}
                   type="button"
-                  className="theme-toggle-btn"
-                  aria-label={theme === 'dark' ? 'Switch to light theme' : 'Switch to dark theme'}
-                  onClick={() => setTheme((prevTheme) => (prevTheme === 'dark' ? 'light' : 'dark'))}
+                  className={`framework-tab-btn ${activePageId === tab.id ? 'active' : ''}`}
+                  onClick={() => setActivePageId(tab.id)}
                 >
-                  <span className="theme-toggle-track">
-                    <span className="theme-toggle-icon theme-toggle-sun" aria-hidden="true">
-                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
-                        <circle cx="12" cy="12" r="4.3" />
-                        <path d="M12 2.8v2.3M12 18.9v2.3M21.2 12h-2.3M5.1 12H2.8M18.8 5.2l-1.6 1.6M6.8 17.2l-1.6 1.6M18.8 18.8l-1.6-1.6M6.8 6.8 5.2 5.2" />
-                      </svg>
-                    </span>
-                    <span className="theme-toggle-icon theme-toggle-moon" aria-hidden="true">
-                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
-                        <path d="M20.3 14.2A8.8 8.8 0 1 1 9.8 3.7a7.1 7.1 0 0 0 10.5 10.5Z" />
-                      </svg>
-                    </span>
-                    <span className="theme-toggle-thumb" />
-                  </span>
+                  <span className="framework-tab-dot" style={{ background: tab.color }} />
+                  {tab.label}
                 </button>
-              </div>
-            </>,
-            topbarElement,
+              ))}
+            </div>
           )}
-        <div dangerouslySetInnerHTML={{ __html: legacyMarkup }} />
+          {!isFrameworkPage && (
+            <span className="active-section-pill" title={activeSectionLabel}>
+              {activeSectionLabel}
+            </span>
+          )}
+        </div>
+
+        <div className="search-wrap">
+          <input
+            type="text"
+            id="searchInput"
+            placeholder="Search patterns, problems..."
+            value={searchQuery}
+            onChange={(event) => {
+              const nextQuery = event.target.value
+              setSearchQuery(nextQuery)
+              if (nextQuery.trim()) {
+                setActivePageId('home')
+              }
+            }}
+          />
+        </div>
+
+        <div className="topbar-toggle-wrap">
+          <button
+            type="button"
+            className="theme-toggle-btn"
+            aria-label={theme === 'dark' ? 'Switch to light theme' : 'Switch to dark theme'}
+            onClick={() => setTheme((prevTheme) => (prevTheme === 'dark' ? 'light' : 'dark'))}
+          >
+            <span className="theme-toggle-track">
+              <span className="theme-toggle-icon theme-toggle-sun" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
+                  <circle cx="12" cy="12" r="4.3" />
+                  <path d="M12 2.8v2.3M12 18.9v2.3M21.2 12h-2.3M5.1 12H2.8M18.8 5.2l-1.6 1.6M6.8 17.2l-1.6 1.6M18.8 18.8l-1.6-1.6M6.8 6.8 5.2 5.2" />
+                </svg>
+              </span>
+              <span className="theme-toggle-icon theme-toggle-moon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
+                  <path d="M20.3 14.2A8.8 8.8 0 1 1 9.8 3.7a7.1 7.1 0 0 0 10.5 10.5Z" />
+                </svg>
+              </span>
+              <span className="theme-toggle-thumb" />
+            </span>
+          </button>
+        </div>
       </div>
-    </>
+
+      <div className="layout">
+        <nav className="sidebar" id="sidebar">
+          <div className="topic-divider">Topic Library</div>
+          {navigation.topicSections.map((section) => (
+            <div key={section.title}>
+              <div className="sidebar-section sidebar-section-topics">{section.title}</div>
+              {section.items.map((item) => (
+                <div
+                  key={item.id}
+                  data-page={item.id}
+                  className={`nav-item nav-item-topic ${item.isSub ? 'nav-sub' : ''} ${
+                    activePageId === item.id ? 'active' : ''
+                  }`}
+                  onClick={() => setActivePageId(item.id)}
+                >
+                  <span className="nav-dot" style={{ background: item.color }} />
+                  {item.label}
+                </div>
+              ))}
+            </div>
+          ))}
+        </nav>
+
+        <main className="main">
+          {pages.map((page) => (
+            <div
+              key={page.id}
+              className={`page ${activePageId === page.id ? 'active' : ''}`}
+              id={`page-${page.id}`}
+            >
+              {renderNodes(page.node.children ?? [], {
+                query: normalizedQuery,
+                onNavigate: setActivePageId,
+              }, `page-${page.id}`)}
+            </div>
+          ))}
+        </main>
+      </div>
+    </div>
   )
 }

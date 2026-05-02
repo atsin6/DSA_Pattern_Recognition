@@ -4,6 +4,10 @@ node_modules/
 # Build output
 dist/
 
+# Legacy source files
+public/legacy-content.html
+public/legacy-content_v2.html
+
 # Environment files
 .env
 .env.local
