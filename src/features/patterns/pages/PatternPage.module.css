@@ -1,0 +1,131 @@
+.pageHeader {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  margin-bottom: 20px;
+}
+
+.pageIcon {
+  width: 42px;
+  height: 42px;
+  border-radius: 12px;
+  display: grid;
+  place-items: center;
+  font-size: 20px;
+  border: 1px solid var(--border-main);
+}
+
+.pageHeader h2 {
+  font-size: 24px;
+}
+
+.pageHeader p {
+  margin-top: 4px;
+}
+
+.cardsGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+  margin-bottom: 14px;
+}
+
+.card {
+  border: 1px solid var(--border-main);
+  border-radius: var(--radius-lg);
+  background: var(--bg-subtle);
+  padding: 16px;
+  box-shadow: var(--shadow-subtle);
+}
+
+.cardHeader {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.cardHeader h3 {
+  margin: 0;
+  font-size: 13px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--tone-sky);
+}
+
+.cardIcon {
+  font-size: 14px;
+}
+
+.tagList {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.tag {
+  border-radius: var(--radius-pill);
+  border: 1px solid var(--border-main);
+  background: var(--bg-elevated);
+  padding: 3px 9px;
+  font-size: 11px;
+  font-family: var(--font-mono);
+}
+
+.useGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.useBox {
+  border-radius: 10px;
+  padding: 12px;
+}
+
+.useBox h4 {
+  margin: 0;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.useBox ul {
+  margin: 8px 0 0;
+  padding-left: 16px;
+}
+
+.useBox li {
+  margin-bottom: 3px;
+  font-size: 12px;
+}
+
+.useYes {
+  background: color-mix(in oklab, var(--tone-green-soft) 80%, transparent);
+  border: 1px solid color-mix(in oklab, var(--tone-green) 45%, transparent);
+}
+
+.useNo {
+  background: color-mix(in oklab, var(--tone-coral-soft) 80%, transparent);
+  border: 1px solid color-mix(in oklab, var(--tone-coral) 45%, transparent);
+}
+
+.transitionCode {
+  display: block;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  line-height: 1.8;
+  color: var(--tone-teal-ink);
+}
+
+.transitionCode em {
+  color: var(--text-muted);
+  font-style: normal;
+}
+
+@media (max-width: 980px) {
+  .cardsGrid,
+  .useGrid {
+    grid-template-columns: 1fr;
+  }
+}

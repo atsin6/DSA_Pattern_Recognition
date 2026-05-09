@@ -1,0 +1,76 @@
+{
+  "id": "dp-unbounded",
+  "label": "Unbounded Knapsack",
+  "icon": "♾",
+  "iconBg": "var(--purple-bg)",
+  "subtitle": "Same item can be picked unlimited times",
+  "signals": [
+    "unlimited supply of each coin/item",
+    "min coins to make amount",
+    "number of ways to make change",
+    "item can be reused",
+    "word break with dictionary",
+    "perfect squares sum"
+  ],
+  "useWhen": [
+    "Each item/denomination has infinite copies",
+    "Iterate w forward (allows reuse)",
+    "\"Minimum coins\" / \"ways to make amount\""
+  ],
+  "avoidWhen": [
+    "Each item appears at most once (0/1 Knapsack)",
+    "Each item appears a fixed k times (bounded knapsack)"
+  ],
+  "stateTransition": [
+    {
+      "code": "// Iterate w FORWARD to allow re-picking same item",
+      "comment": ""
+    },
+    {
+      "code": "for coin in coins: for w from coin to amount:",
+      "comment": ""
+    },
+    {
+      "code": "  dp[w] = min(dp[w], dp[w - coin] + 1)",
+      "comment": ""
+    }
+  ],
+  "problems": [
+    {
+      "difficulty": "M",
+      "name": "Coin Change",
+      "number": "322",
+      "insight": "Min coins — dp[amount] forward loop"
+    },
+    {
+      "difficulty": "M",
+      "name": "Coin Change II",
+      "number": "518",
+      "insight": "Count ways — order of loops matters"
+    },
+    {
+      "difficulty": "M",
+      "name": "Perfect Squares",
+      "number": "279",
+      "insight": "Coins = {1,4,9,...} BFS or DP"
+    },
+    {
+      "difficulty": "M",
+      "name": "Word Break",
+      "number": "139",
+      "insight": "dp[i] = any dp[j] && word[j..i] valid"
+    },
+    {
+      "difficulty": "H",
+      "name": "Word Break II",
+      "number": "140",
+      "insight": "Backtracking + memoization"
+    },
+    {
+      "difficulty": "H",
+      "name": "Integer Break",
+      "number": "343",
+      "insight": "Unbounded split on integer parts"
+    }
+  ]
+}

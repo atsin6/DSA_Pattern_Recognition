@@ -1,0 +1,70 @@
+{
+  "id": "graphs",
+  "label": "Graphs (BFS/DFS/Topo)",
+  "icon": "🕸",
+  "iconBg": "var(--coral-bg)",
+  "subtitle": "Traversal, shortest path, connectivity, ordering",
+  "signals": [
+    "connected components",
+    "shortest path (unweighted)",
+    "cycle detection",
+    "topological sort / prerequisites",
+    "island count / flood fill",
+    "bipartite check",
+    "word ladder / transformation"
+  ],
+  "useWhen": [
+    "BFS → shortest path / min steps",
+    "DFS → connected components / cycle",
+    "Topo sort → dependency ordering",
+    "Dijkstra → weighted shortest path"
+  ],
+  "avoidWhen": [
+    "Tree problem (no cycles, no need for visited set)",
+    "Weighted shortest path without Dijkstra/Bellman-Ford"
+  ],
+  "problems": [
+    {
+      "difficulty": "E",
+      "name": "Flood Fill",
+      "number": "733",
+      "insight": "DFS/BFS from start cell"
+    },
+    {
+      "difficulty": "M",
+      "name": "Number of Islands",
+      "number": "200",
+      "insight": "DFS + mark visited"
+    },
+    {
+      "difficulty": "M",
+      "name": "Course Schedule",
+      "number": "207",
+      "insight": "Topo sort / cycle detect"
+    },
+    {
+      "difficulty": "M",
+      "name": "Rotting Oranges",
+      "number": "994",
+      "insight": "Multi-source BFS"
+    },
+    {
+      "difficulty": "M",
+      "name": "Pacific Atlantic Water Flow",
+      "number": "417",
+      "insight": "Reverse BFS from edges"
+    },
+    {
+      "difficulty": "H",
+      "name": "Word Ladder",
+      "number": "127",
+      "insight": "BFS on word graph"
+    },
+    {
+      "difficulty": "H",
+      "name": "Alien Dictionary",
+      "number": "269",
+      "insight": "Topo sort from char order"
+    }
+  ]
+}

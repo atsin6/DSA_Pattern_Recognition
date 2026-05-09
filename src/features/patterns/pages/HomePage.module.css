@@ -1,0 +1,135 @@
+.hero {
+  border: 1px solid var(--border-main);
+  border-radius: var(--radius-lg);
+  background: linear-gradient(135deg, color-mix(in oklab, var(--tone-sky-soft) 64%, transparent), color-mix(in oklab, var(--tone-green-soft) 72%, transparent));
+  box-shadow: var(--shadow-subtle);
+  padding: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+}
+
+.hero h2 {
+  font-size: 26px;
+}
+
+.hero p {
+  margin-top: 8px;
+  max-width: 64ch;
+}
+
+.heroPulse {
+  width: 120px;
+  height: 120px;
+  border-radius: 999px;
+  background: radial-gradient(circle at center, rgba(59, 130, 246, 0.45), transparent 70%);
+  animation: pulse 3.2s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%,
+  100% { transform: scale(0.95); opacity: 0.62; }
+  50% { transform: scale(1.08); opacity: 1; }
+}
+
+.statsRow {
+  margin-top: 18px;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.statBox {
+  border: 1px solid var(--border-main);
+  border-radius: var(--radius-md);
+  background: var(--bg-subtle);
+  padding: 14px;
+  box-shadow: var(--shadow-subtle);
+}
+
+.statNum {
+  font-size: 28px;
+  font-weight: 800;
+  line-height: 1;
+}
+
+.statLabel {
+  margin-top: 4px;
+  color: var(--text-secondary);
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.sky { color: var(--tone-sky); }
+.green { color: var(--tone-green); }
+.amber { color: var(--tone-amber); }
+.berry { color: var(--tone-berry); }
+
+.sectionTitle {
+  margin: 24px 0 10px;
+  font-size: 13px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-muted);
+}
+
+.patternGrid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.patternCard {
+  display: block;
+  text-decoration: none;
+  border: 1px solid var(--border-main);
+  border-radius: var(--radius-md);
+  background: var(--bg-subtle);
+  padding: 14px;
+  box-shadow: var(--shadow-subtle);
+  transition: transform var(--duration-base) ease, border-color var(--duration-base) ease;
+  animation: cardIn 280ms ease both;
+}
+
+.patternCard:hover {
+  transform: translateY(-2px);
+  border-color: var(--border-strong);
+}
+
+.cardTitle {
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.cardTags {
+  margin-top: 5px;
+  font-size: 11px;
+  color: var(--text-muted);
+  font-family: var(--font-mono);
+}
+
+@keyframes cardIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@media (max-width: 980px) {
+  .hero {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .heroPulse {
+    display: none;
+  }
+
+  .statsRow {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .patternGrid {
+    grid-template-columns: 1fr;
+  }
+}

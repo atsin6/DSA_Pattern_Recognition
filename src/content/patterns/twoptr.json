@@ -1,0 +1,71 @@
+{
+  "id": "twoptr",
+  "label": "Two Pointers",
+  "icon": "👆",
+  "iconBg": "var(--green-bg)",
+  "subtitle": "Two indices moving toward or away from each other",
+  "signals": [
+    "sorted array",
+    "pair / triplet with target sum",
+    "palindrome check",
+    "remove duplicates in-place",
+    "two sorted arrays merge",
+    "container with most water",
+    "partition array"
+  ],
+  "useWhen": [
+    "Array is sorted (or can be sorted)",
+    "Looking for a pair meeting a condition",
+    "In-place modification needed",
+    "Comparing from both ends"
+  ],
+  "avoidWhen": [
+    "Array is unsorted and sorting changes answer",
+    "Non-contiguous elements with complex condition",
+    "Window has frequency/map constraints (use sliding window)"
+  ],
+  "problems": [
+    {
+      "difficulty": "E",
+      "name": "Valid Palindrome",
+      "number": "125",
+      "insight": "Left/right toward center"
+    },
+    {
+      "difficulty": "E",
+      "name": "Squares of a Sorted Array",
+      "number": "977",
+      "insight": "Two ends inward"
+    },
+    {
+      "difficulty": "M",
+      "name": "Two Sum II — Input Array Is Sorted",
+      "number": "167",
+      "insight": "Classic left-right"
+    },
+    {
+      "difficulty": "M",
+      "name": "3Sum",
+      "number": "15",
+      "insight": "Fix one, two-pointer rest"
+    },
+    {
+      "difficulty": "M",
+      "name": "Container With Most Water",
+      "number": "11",
+      "insight": "Move smaller side inward"
+    },
+    {
+      "difficulty": "H",
+      "name": "Trapping Rain Water",
+      "number": "42",
+      "insight": "Left/right max arrays"
+    },
+    {
+      "difficulty": "H",
+      "name": "4Sum",
+      "number": "18",
+      "insight": "Fix two, two-pointer rest"
+    }
+  ]
+}

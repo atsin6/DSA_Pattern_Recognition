@@ -1,0 +1,65 @@
+{
+  "id": "backtrack",
+  "label": "Recursion / Backtracking",
+  "icon": "↩",
+  "iconBg": "var(--purple-bg)",
+  "subtitle": "Explore all possibilities, prune invalid branches early",
+  "signals": [
+    "all permutations / combinations",
+    "all subsets / power set",
+    "generate all valid strings",
+    "satisfy constraints",
+    "N-Queens, Sudoku",
+    "word search on grid",
+    "partition into groups"
+  ],
+  "useWhen": [
+    "Enumerate all valid configurations",
+    "Decision at each step (include/exclude)",
+    "Constraint satisfaction problem",
+    "Small input (n ≤ 20)"
+  ],
+  "avoidWhen": [
+    "Need only one optimal answer (use DP/Greedy)",
+    "Input is large (exponential blowup)",
+    "No pruning possible (too slow)"
+  ],
+  "problems": [
+    {
+      "difficulty": "E",
+      "name": "Letter Case Permutation",
+      "number": "784",
+      "insight": "Include/exclude case"
+    },
+    {
+      "difficulty": "M",
+      "name": "Subsets",
+      "number": "78",
+      "insight": "Include/exclude each element"
+    },
+    {
+      "difficulty": "M",
+      "name": "Permutations",
+      "number": "46",
+      "insight": "Swap + recurse + swap back"
+    },
+    {
+      "difficulty": "M",
+      "name": "Combination Sum",
+      "number": "39",
+      "insight": "Reuse elements + pruning"
+    },
+    {
+      "difficulty": "H",
+      "name": "N-Queens",
+      "number": "51",
+      "insight": "Column + diagonal sets"
+    },
+    {
+      "difficulty": "H",
+      "name": "Sudoku Solver",
+      "number": "37",
+      "insight": "Fill + validate + undo"
+    }
+  ]
+}

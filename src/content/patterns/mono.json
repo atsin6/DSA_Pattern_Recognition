@@ -1,0 +1,64 @@
+{
+  "id": "mono",
+  "label": "Monotonic Stack/Queue",
+  "icon": "📊",
+  "iconBg": "var(--teal-bg)",
+  "subtitle": "Maintain increasing/decreasing order for next-greater type problems",
+  "signals": [
+    "next greater element",
+    "previous smaller element",
+    "largest rectangle in histogram",
+    "daily temperatures",
+    "sliding window maximum",
+    "online stock span",
+    "valid parentheses order"
+  ],
+  "useWhen": [
+    "\"Next greater/smaller\" in O(n)",
+    "Sliding window min/max in O(n)",
+    "Span / visible buildings problems"
+  ],
+  "avoidWhen": [
+    "Need global max/min (use single pass)",
+    "Data is not processed sequentially",
+    "Arbitrary window queries (use segment tree)"
+  ],
+  "problems": [
+    {
+      "difficulty": "E",
+      "name": "Next Greater Element I",
+      "number": "496",
+      "insight": "Mono stack + hashmap"
+    },
+    {
+      "difficulty": "M",
+      "name": "Daily Temperatures",
+      "number": "739",
+      "insight": "Stack of indices"
+    },
+    {
+      "difficulty": "M",
+      "name": "Online Stock Span",
+      "number": "901",
+      "insight": "Stack of (price, span)"
+    },
+    {
+      "difficulty": "M",
+      "name": "Car Fleet",
+      "number": "853",
+      "insight": "Sort + mono stack by time"
+    },
+    {
+      "difficulty": "H",
+      "name": "Largest Rectangle in Histogram",
+      "number": "84",
+      "insight": "Mono increasing stack"
+    },
+    {
+      "difficulty": "H",
+      "name": "Sliding Window Maximum",
+      "number": "239",
+      "insight": "Mono deque (front = max)"
+    }
+  ]
+}

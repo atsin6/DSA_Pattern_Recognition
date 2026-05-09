@@ -1,0 +1,76 @@
+{
+  "id": "dp-interval",
+  "label": "Interval DP",
+  "icon": "⊨",
+  "iconBg": "var(--purple-bg)",
+  "subtitle": "dp[i][j] — solve subproblem on range [i, j] using a split point k",
+  "signals": [
+    "split array at index k to solve left + right",
+    "matrix chain multiplication",
+    "burst balloons / remove boxes",
+    "minimum cost to merge stones",
+    "palindrome partitioning cost",
+    "score after parenthesizing"
+  ],
+  "useWhen": [
+    "Optimal answer for [i,j] depends on split at k",
+    "Problem asks about contiguous segments/ranges",
+    "Smaller intervals combine into larger ones"
+  ],
+  "avoidWhen": [
+    "No \"split\" structure (use 1D or 2D DP)",
+    "Intervals from input — check greedy first"
+  ],
+  "stateTransition": [
+    {
+      "code": "// Iterate by length, then start, then split point k",
+      "comment": ""
+    },
+    {
+      "code": "for len 2..n: for i 0..n-len: j = i+len-1:",
+      "comment": ""
+    },
+    {
+      "code": "  dp[i][j] = min over k in [i, j-1] of dp[i][k] + dp[k+1][j] + cost",
+      "comment": ""
+    }
+  ],
+  "problems": [
+    {
+      "difficulty": "M",
+      "name": "Palindromic Substrings",
+      "number": "647",
+      "insight": "Expand from center or dp[i][j]"
+    },
+    {
+      "difficulty": "M",
+      "name": "Longest Palindromic Subsequence",
+      "number": "516",
+      "insight": "dp[i][j] = dp[i+1][j-1]+2 if match"
+    },
+    {
+      "difficulty": "H",
+      "name": "Burst Balloons",
+      "number": "312",
+      "insight": "Last balloon k in [i,j] to burst"
+    },
+    {
+      "difficulty": "H",
+      "name": "Strange Printer",
+      "number": "664",
+      "insight": "Interval DP on print ranges"
+    },
+    {
+      "difficulty": "H",
+      "name": "Remove Boxes",
+      "number": "546",
+      "insight": "dp[i][j][k] with extra trailing boxes"
+    },
+    {
+      "difficulty": "H",
+      "name": "Minimum Cost to Merge Stones",
+      "number": "1000",
+      "insight": "Split every k piles, interval DP"
+    }
+  ]
+}

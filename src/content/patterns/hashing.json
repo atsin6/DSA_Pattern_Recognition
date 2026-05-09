@@ -1,0 +1,71 @@
+{
+  "id": "hashing",
+  "label": "Hashing",
+  "icon": "#",
+  "iconBg": "var(--green-bg)",
+  "subtitle": "HashMap / HashSet for O(1) lookups, counting, grouping",
+  "signals": [
+    "two sum / pair with target",
+    "frequency count",
+    "duplicate detection",
+    "group / categorize elements",
+    "anagram check",
+    "first occurrence / index map",
+    "O(1) lookup needed"
+  ],
+  "useWhen": [
+    "Need O(1) average lookup",
+    "Counting occurrences of elements",
+    "Grouping elements by a key",
+    "Checking membership quickly"
+  ],
+  "avoidWhen": [
+    "Order/range matters (use sorted array)",
+    "Memory is very limited",
+    "Hash collisions cause correctness issues"
+  ],
+  "problems": [
+    {
+      "difficulty": "E",
+      "name": "Two Sum",
+      "number": "1",
+      "insight": "Map value → index"
+    },
+    {
+      "difficulty": "E",
+      "name": "Valid Anagram",
+      "number": "242",
+      "insight": "Frequency map compare"
+    },
+    {
+      "difficulty": "E",
+      "name": "Contains Duplicate",
+      "number": "217",
+      "insight": "HashSet membership"
+    },
+    {
+      "difficulty": "M",
+      "name": "Group Anagrams",
+      "number": "49",
+      "insight": "Sort key → group list"
+    },
+    {
+      "difficulty": "M",
+      "name": "Top K Frequent Elements",
+      "number": "347",
+      "insight": "Freq map + bucket sort"
+    },
+    {
+      "difficulty": "M",
+      "name": "Longest Consecutive Sequence",
+      "number": "128",
+      "insight": "HashSet + check start"
+    },
+    {
+      "difficulty": "H",
+      "name": "Minimum Window Substring",
+      "number": "76",
+      "insight": "Two maps + window"
+    }
+  ]
+}

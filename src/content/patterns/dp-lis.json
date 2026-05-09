@@ -1,0 +1,71 @@
+{
+  "id": "dp-lis",
+  "label": "LIS",
+  "icon": "↗",
+  "iconBg": "var(--purple-bg)",
+  "subtitle": "dp[i] = longest increasing subsequence ending at index i",
+  "signals": [
+    "longest increasing / non-decreasing subsequence",
+    "count of increasing subsequences",
+    "maximum envelope nesting",
+    "longest chain of pairs",
+    "patience sorting"
+  ],
+  "useWhen": [
+    "Finding longest ordered subsequence",
+    "Pairs or envelopes sorted and nested",
+    "O(n log n) required: binary search + tails array"
+  ],
+  "avoidWhen": [
+    "Contiguous subarray needed (use Kadane's / sliding window)",
+    "Two strings involved (use LCS)"
+  ],
+  "stateTransition": [
+    {
+      "code": "O(n²): dp[i] = max(dp[j]+1) for all j<i where nums[j]<nums[i]",
+      "comment": ""
+    },
+    {
+      "code": "O(n log n): maintain tails[], binary search for insert position",
+      "comment": ""
+    }
+  ],
+  "problems": [
+    {
+      "difficulty": "M",
+      "name": "Longest Increasing Subsequence",
+      "number": "300",
+      "insight": "O(n²) DP or O(n log n) patience sort"
+    },
+    {
+      "difficulty": "M",
+      "name": "Number of Longest Increasing Subsequences",
+      "number": "673",
+      "insight": "Track length + count arrays"
+    },
+    {
+      "difficulty": "M",
+      "name": "Longest Bitonic Subsequence",
+      "number": "pattern",
+      "insight": "LIS from left + LIS from right"
+    },
+    {
+      "difficulty": "M",
+      "name": "Maximum Length of Pair Chain",
+      "number": "646",
+      "insight": "Sort by end, LIS on pairs"
+    },
+    {
+      "difficulty": "H",
+      "name": "Russian Doll Envelopes",
+      "number": "354",
+      "insight": "Sort by w asc, h desc → LIS on h"
+    },
+    {
+      "difficulty": "H",
+      "name": "Longest Increasing Path in Matrix",
+      "number": "329",
+      "insight": "DFS + memo on matrix"
+    }
+  ]
+}

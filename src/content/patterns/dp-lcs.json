@@ -1,0 +1,77 @@
+{
+  "id": "dp-lcs",
+  "label": "LCS (Two-String DP)",
+  "icon": "↔",
+  "iconBg": "var(--purple-bg)",
+  "subtitle": "dp[i][j] over two sequences — match, skip s1[i], or skip s2[j]",
+  "signals": [
+    "two strings as input",
+    "longest common subsequence",
+    "edit distance (insert/delete/replace)",
+    "min deletions to make equal",
+    "shortest common supersequence",
+    "wildcard / regex matching",
+    "interleaving strings"
+  ],
+  "useWhen": [
+    "Problem involves comparing two strings",
+    "Alignment / edit operations between two sequences",
+    "Matching with wildcards (regex)"
+  ],
+  "avoidWhen": [
+    "Single string — use 1D DP or palindrome DP",
+    "Subsequence within one string — use LIS"
+  ],
+  "stateTransition": [
+    {
+      "code": "if s1[i]==s2[j]: dp[i][j] = dp[i-1][j-1] + 1",
+      "comment": "// LCS"
+    },
+    {
+      "code": "else: dp[i][j] = max(dp[i-1][j], dp[i][j-1])",
+      "comment": ""
+    },
+    {
+      "code": "// Edit dist: min(dp[i-1][j]+1, dp[i][j-1]+1, dp[i-1][j-1] + (s1[i]!=s2[j]))",
+      "comment": ""
+    }
+  ],
+  "problems": [
+    {
+      "difficulty": "M",
+      "name": "Longest Common Subsequence",
+      "number": "1143",
+      "insight": "Classic LCS dp[i][j]"
+    },
+    {
+      "difficulty": "M",
+      "name": "Uncrossed Lines",
+      "number": "1035",
+      "insight": "Identical to LCS"
+    },
+    {
+      "difficulty": "M",
+      "name": "Delete Operation for Two Strings",
+      "number": "583",
+      "insight": "n + m - 2*LCS"
+    },
+    {
+      "difficulty": "H",
+      "name": "Edit Distance",
+      "number": "72",
+      "insight": "3-way transition: ins/del/replace"
+    },
+    {
+      "difficulty": "H",
+      "name": "Shortest Common Supersequence",
+      "number": "1092",
+      "insight": "Reconstruct from LCS table"
+    },
+    {
+      "difficulty": "H",
+      "name": "Regular Expression Matching",
+      "number": "10",
+      "insight": "'*' matches 0 or more of prev char"
+    }
+  ]
+}

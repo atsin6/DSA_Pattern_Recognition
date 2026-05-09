@@ -1,0 +1,73 @@
+{
+  "id": "dp-01knap",
+  "label": "0/1 Knapsack",
+  "icon": "🎒",
+  "iconBg": "var(--purple-bg)",
+  "subtitle": "Each item used at most once — include or exclude decision",
+  "signals": [
+    "subset sum equals target",
+    "partition into equal halves",
+    "each element used at most once",
+    "can we reach exactly W?",
+    "choose items with total ≤ capacity",
+    "assign to two groups to minimize diff"
+  ],
+  "useWhen": [
+    "Each item appears exactly once",
+    "Binary choice: take or leave item i",
+    "Target sum / capacity is bounded integer"
+  ],
+  "avoidWhen": [
+    "Items can be reused (Unbounded Knapsack)",
+    "Fractional amounts allowed (Greedy)",
+    "Need all subsets listed (Backtracking)"
+  ],
+  "stateTransition": [
+    {
+      "code": "dp[i][w] = max(dp[i-1][w], dp[i-1][w-wt[i]] + val[i])",
+      "comment": "// 2D"
+    },
+    {
+      "code": "dp[w] = max(dp[w], dp[w-wt[i]] + val[i])",
+      "comment": "// 1D space-opt (iterate w backwards)"
+    }
+  ],
+  "problems": [
+    {
+      "difficulty": "M",
+      "name": "Partition Equal Subset Sum",
+      "number": "416",
+      "insight": "Can we hit sum/2?"
+    },
+    {
+      "difficulty": "M",
+      "name": "Subset Sum",
+      "number": "pattern — via 416",
+      "insight": "Boolean dp[target]"
+    },
+    {
+      "difficulty": "M",
+      "name": "Last Stone Weight II",
+      "number": "1049",
+      "insight": "Minimize diff between two groups"
+    },
+    {
+      "difficulty": "M",
+      "name": "Target Sum",
+      "number": "494",
+      "insight": "Count subsets with sum = S"
+    },
+    {
+      "difficulty": "H",
+      "name": "Ones and Zeroes",
+      "number": "474",
+      "insight": "2D knapsack (m zeros, n ones budget)"
+    },
+    {
+      "difficulty": "H",
+      "name": "Profitable Schemes",
+      "number": "879",
+      "insight": "3D knapsack (members, profit)"
+    }
+  ]
+}

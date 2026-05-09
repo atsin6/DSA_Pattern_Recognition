@@ -1,0 +1,71 @@
+{
+  "id": "dp-bitmask",
+  "label": "Bitmask DP",
+  "icon": "⊕",
+  "iconBg": "var(--purple-bg)",
+  "subtitle": "State encoded as bitmask — track which subset of items are used",
+  "signals": [
+    "n ≤ 20 elements",
+    "visit all nodes / assign all tasks",
+    "subset of items used so far",
+    "traveling salesman / assignment",
+    "partition into k subsets",
+    "cover all requirements"
+  ],
+  "useWhen": [
+    "n ≤ 20 (2^n states feasible)",
+    "Need to track which items are included",
+    "Order matters within the subset"
+  ],
+  "avoidWhen": [
+    "n > 20 (2^n too large)",
+    "Order doesn't matter (use standard knapsack)",
+    "Simple subset sum without ordering"
+  ],
+  "stateTransition": [
+    {
+      "code": "// dp[mask][i] = min cost to visit nodes in mask, ending at i",
+      "comment": ""
+    },
+    {
+      "code": "for mask in 0..2^n: for i where mask&(1<<i):",
+      "comment": ""
+    },
+    {
+      "code": "  dp[mask|(1<<j)][j] = min(dp[mask][i] + dist[i][j])",
+      "comment": ""
+    }
+  ],
+  "problems": [
+    {
+      "difficulty": "M",
+      "name": "Partition to K Equal Sum Subsets",
+      "number": "698",
+      "insight": "Bitmask + backtracking hybrid"
+    },
+    {
+      "difficulty": "H",
+      "name": "Shortest Path Visiting All Nodes",
+      "number": "847",
+      "insight": "BFS + bitmask state"
+    },
+    {
+      "difficulty": "H",
+      "name": "Minimum XOR Sum of Two Arrays",
+      "number": "1879",
+      "insight": "Assignment DP with bitmask"
+    },
+    {
+      "difficulty": "H",
+      "name": "Find the Shortest Superstring",
+      "number": "943",
+      "insight": "TSP-style bitmask DP"
+    },
+    {
+      "difficulty": "H",
+      "name": "Stickers to Spell Word",
+      "number": "691",
+      "insight": "BFS/DP on character coverage mask"
+    }
+  ]
+}

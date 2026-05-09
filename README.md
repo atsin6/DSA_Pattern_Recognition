@@ -1,68 +1,105 @@
 # DSA Pattern Recognition
 
-This project is my personal DSA pattern handbook built as an interactive web app.
-I wanted one place where I could quickly map a problem to the right pattern, compare approaches, and jump into practice questions.
+A route-driven, data-validated DSA handbook built with React + TypeScript.
 
-I vibecoded it.
+## What this app does
 
-## What this is
-
-- A pattern recognition guide for coding interviews and problem-solving.
-- Split into topic areas like Array/String, Recursion/DP, Trees/Graphs, and advanced patterns.
-- Includes framework-style views (`Pattern Map`, `Decision Framework`, `Cross-Pattern Comparison`) for quick direction.
-- Problem tables include difficulty + key idea, and each problem links out to LeetCode.
-- Comes with a light/dark theme toggle.
+- Helps map problem signals to DSA patterns quickly.
+- Provides three framework views:
+  - Pattern Map (`/`)
+  - Decision Framework (`/framework/decision`)
+  - Cross-Pattern Comparison (`/framework/compare`)
+- Supports deep links for every pattern page (`/patterns/:patternId`).
+- Keeps home search URL-shareable with query params (`/?q=...`).
+- Includes light/dark theme persistence via `localStorage['dsa-theme']`.
 
 ## Tech stack
 
 - React 18
+- React Router 6
+- TypeScript
 - Vite 5
-- Vanilla CSS (custom properties + dark/light themes)
+- Zod schema validation for content
+- Vitest + React Testing Library
+- CSS Modules + design tokens
+
+## Scripts
+
+```bash
+npm run dev
+npm run build
+npm run preview
+npm run typecheck
+npm run test
+npm run test:watch
+```
 
 ## Project structure
 
-```
+```text
 src/
-├── App.jsx                  — thin shell: state + layout composition
-├── main.jsx                 — React bootstrap + CSS import
-├── index.css                — all styles (themes, layout, components)
-├── data/
-│   ├── patterns.js          — all 25 DSA patterns as data objects
-│   ├── comparisons.js       — 5 cross-pattern comparison cards
-│   └── decisions.js         — decision framework rules + checklist
-└── components/
-    ├── Topbar.jsx            — nav bar, framework tabs, search, theme toggle
-    ├── Sidebar.jsx           — topic library navigation
-    ├── HomePage.jsx          — stats + clickable pattern grid
-    ├── PatternPage.jsx       — generic page renderer for any pattern
-    ├── DPOverviewPage.jsx    — DP overview with 10 sub-pattern cards
-    ├── DecisionPage.jsx      — 3-step decision framework
-    ├── ComparePage.jsx       — side-by-side pattern comparisons
-    └── ProblemTable.jsx      — LeetCode problem table with auto-links
+├── app/                      # App shell + route composition
+├── content/
+│   └── patterns/             # One JSON file per pattern
+├── features/
+│   ├── patterns/             # Pattern pages, tables, validated content loader
+│   ├── framework/            # Decision framework page + data
+│   └── compare/              # Cross-pattern comparison page + data
+├── shared/
+│   ├── styles/               # Global tokens + base styles
+│   ├── types/                # Domain interfaces
+│   └── ui/                   # Shared topbar + sidebar
+└── test/                     # Test setup
 ```
 
-## How to add a new pattern
+## Content contract (JSON)
 
-Just add a new object to `src/data/patterns.js`:
+Each pattern file in `src/content/patterns/*.json` follows this shape:
 
-```js
+- Required: `id`, `label`, `icon`, `iconBg`, `subtitle`
+- Optional arrays: `signals`, `useWhen`, `avoidWhen`, `problems`
+- Optional DP fields: `dpOverview`, `useWhenTitle`, `useWhenItems`, `avoidWhenTitle`, `avoidWhenItems`, `subPatterns`
+- Optional transition fields: `stateTransitionTitle`, `stateTransition`
+
+Example problem row:
+
+```json
 {
-  id: 'mypattern',
-  label: 'My Pattern',
-  icon: '🔥',
-  iconBg: 'var(--blue-bg)',
-  subtitle: 'One-line description',
-  signals: ['signal 1', 'signal 2'],
-  useWhen: ['use case 1'],
-  avoidWhen: ['avoid case 1'],
-  problems: [
-    { difficulty: 'M', name: 'Problem Name', number: '123', insight: 'Key idea' },
-  ],
+  "difficulty": "M",
+  "name": "Longest Substring Without Repeating Characters",
+  "number": "3",
+  "insight": "Variable window + HashMap"
 }
 ```
 
-Then add its `id` to the appropriate category in `CATEGORIES` at the top of the same file. Done — no HTML editing, no build scripts, no parsers.
+At startup, all pattern JSON files are validated with Zod. Invalid rows fail fast with actionable issue paths.
 
-## License
+## Adding a new pattern
 
-Personal/project use.
+1. Create `src/content/patterns/<id>.json`.
+2. Ensure it matches the schema in `src/features/patterns/data/pattern-schema.ts`.
+3. Add `<id>` to category/home configs in `src/features/patterns/data/pattern-config.ts`.
+4. Run:
+
+```bash
+npm run typecheck
+npm run test
+```
+
+## Routing contract
+
+- `/`
+- `/framework/decision`
+- `/framework/compare`
+- `/patterns/:patternId`
+
+Unknown pattern IDs render an explicit not-found card in-app.
+
+## Accessibility and responsive behavior
+
+- Semantic links/buttons for all interactive navigation surfaces.
+- Keyboard-visible focus rings.
+- Motion respects `prefers-reduced-motion`.
+- Mobile topic drawer replaces desktop sidebar under tablet breakpoints.
+
+See [CONTRIBUTING.md](./CONTRIBUTING.md) for contributor workflow and [MIGRATION.md](./MIGRATION.md) for old-to-new mapping notes.
