@@ -1,0 +1,57 @@
+{
+  "id": "trie",
+  "label": "Trie",
+  "icon": "🔤",
+  "iconBg": "var(--amber-bg)",
+  "subtitle": "Character-by-character tree for prefix matching",
+  "signals": [
+    "prefix search / autocomplete",
+    "word exists in dictionary",
+    "search with wildcards (.)",
+    "words with common prefix",
+    "replace words in sentence",
+    "stream of characters match"
+  ],
+  "useWhen": [
+    "Multiple prefix queries on same word set",
+    "Wildcard character matching needed",
+    "Many shared prefixes (space efficient)"
+  ],
+  "avoidWhen": [
+    "Simple word lookup (HashSet is enough)",
+    "No prefix operation (sorted array better)",
+    "Memory is tight (Trie has overhead)"
+  ],
+  "problems": [
+    {
+      "difficulty": "M",
+      "name": "Implement Trie",
+      "number": "208",
+      "insight": "TrieNode with children array"
+    },
+    {
+      "difficulty": "M",
+      "name": "Design Add and Search Words Data Structure",
+      "number": "211",
+      "insight": "DFS on '.' wildcard"
+    },
+    {
+      "difficulty": "M",
+      "name": "Replace Words",
+      "number": "648",
+      "insight": "Trie prefix match"
+    },
+    {
+      "difficulty": "H",
+      "name": "Word Search II",
+      "number": "212",
+      "insight": "Trie + DFS on grid"
+    },
+    {
+      "difficulty": "H",
+      "name": "Concatenated Words",
+      "number": "472",
+      "insight": "Trie + DP"
+    }
+  ]
+}

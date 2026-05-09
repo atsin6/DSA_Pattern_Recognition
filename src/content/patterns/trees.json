@@ -1,0 +1,77 @@
+{
+  "id": "trees",
+  "label": "Trees",
+  "icon": "🌲",
+  "iconBg": "var(--coral-bg)",
+  "subtitle": "DFS (pre/in/post-order) and BFS (level-order) on tree structures",
+  "signals": [
+    "binary tree / BST",
+    "tree height / depth",
+    "path sum",
+    "lowest common ancestor",
+    "serialize / deserialize tree",
+    "level order traversal",
+    "validate BST",
+    "diameter / balanced check"
+  ],
+  "useWhen": [
+    "DFS for path, depth, ancestor problems",
+    "BFS for level-order / minimum depth",
+    "Inorder for BST (gives sorted order)",
+    "Post-order when child info needed first"
+  ],
+  "avoidWhen": [
+    "Shortest path in weighted graph (use Dijkstra)",
+    "Graph has cycles (use DFS + visited set)"
+  ],
+  "problems": [
+    {
+      "difficulty": "E",
+      "name": "Maximum Depth of Binary Tree",
+      "number": "104",
+      "insight": "Post-order DFS"
+    },
+    {
+      "difficulty": "E",
+      "name": "Invert Binary Tree",
+      "number": "226",
+      "insight": "Swap children recursively"
+    },
+    {
+      "difficulty": "E",
+      "name": "Symmetric Tree",
+      "number": "101",
+      "insight": "Mirror DFS"
+    },
+    {
+      "difficulty": "M",
+      "name": "Binary Tree Level Order Traversal",
+      "number": "102",
+      "insight": "BFS with queue"
+    },
+    {
+      "difficulty": "M",
+      "name": "Validate Binary Search Tree",
+      "number": "98",
+      "insight": "Pass min/max bounds"
+    },
+    {
+      "difficulty": "M",
+      "name": "Lowest Common Ancestor of BST",
+      "number": "235",
+      "insight": "BST property navigation"
+    },
+    {
+      "difficulty": "H",
+      "name": "Binary Tree Maximum Path Sum",
+      "number": "124",
+      "insight": "Post-order + global max"
+    },
+    {
+      "difficulty": "H",
+      "name": "Serialize and Deserialize Binary Tree",
+      "number": "297",
+      "insight": "Preorder + delimiter"
+    }
+  ]
+}

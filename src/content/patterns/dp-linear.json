@@ -1,0 +1,79 @@
+{
+  "id": "dp-linear",
+  "label": "1D Linear DP",
+  "icon": "〰",
+  "iconBg": "var(--purple-bg)",
+  "subtitle": "dp[i] depends on one or two previous states — simplest DP form",
+  "signals": [
+    "count ways to climb n steps",
+    "max/min cost to reach index i",
+    "can't pick adjacent elements",
+    "fibonacci-like recurrence",
+    "dp[i] = f(dp[i-1], dp[i-2])",
+    "paint houses / tile floors"
+  ],
+  "useWhen": [
+    "State is a single index i",
+    "Each position's answer depends on 1-2 prior positions",
+    "Linear scan left-to-right is sufficient"
+  ],
+  "avoidWhen": [
+    "State depends on two separate indices (use 2D DP)",
+    "Items have weights/values (use Knapsack)",
+    "Order within subsequence matters (use LIS)"
+  ],
+  "stateTransition": [
+    {
+      "code": "dp[i] = dp[i-1] + dp[i-2]",
+      "comment": "// climbing stairs"
+    },
+    {
+      "code": "dp[i] = max(dp[i-1], dp[i-2] + nums[i])",
+      "comment": "// house robber"
+    }
+  ],
+  "problems": [
+    {
+      "difficulty": "E",
+      "name": "Climbing Stairs",
+      "number": "70",
+      "insight": "dp[i] = dp[i-1] + dp[i-2]"
+    },
+    {
+      "difficulty": "E",
+      "name": "Min Cost Climbing Stairs",
+      "number": "746",
+      "insight": "dp[i] = min(dp[i-1], dp[i-2]) + cost[i]"
+    },
+    {
+      "difficulty": "M",
+      "name": "House Robber",
+      "number": "198",
+      "insight": "Skip adjacent, take max"
+    },
+    {
+      "difficulty": "M",
+      "name": "House Robber II",
+      "number": "213",
+      "insight": "Run twice: [0..n-2] and [1..n-1]"
+    },
+    {
+      "difficulty": "M",
+      "name": "Decode Ways",
+      "number": "91",
+      "insight": "1-digit and 2-digit decode branch"
+    },
+    {
+      "difficulty": "M",
+      "name": "Paint House",
+      "number": "256",
+      "insight": "3-color dp[i][color] transition"
+    },
+    {
+      "difficulty": "H",
+      "name": "Paint House III",
+      "number": "1473",
+      "insight": "dp[i][j][k] with neighborhood count"
+    }
+  ]
+}

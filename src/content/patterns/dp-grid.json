@@ -1,0 +1,78 @@
+{
+  "id": "dp-grid",
+  "label": "2D / Grid DP",
+  "icon": "⊞",
+  "iconBg": "var(--purple-bg)",
+  "subtitle": "dp[i][j] — state depends on row i and column j or two sequence indices",
+  "signals": [
+    "m×n grid traversal",
+    "unique paths in grid",
+    "min path sum top-left to bottom-right",
+    "obstacles in grid",
+    "count squares / rectangles",
+    "cherry pick / gold mine"
+  ],
+  "useWhen": [
+    "Problem is on a 2D matrix/grid",
+    "Movement only right/down (acyclic)",
+    "Two pointers advancing on two sequences"
+  ],
+  "avoidWhen": [
+    "All-direction movement needed (use BFS/DFS)",
+    "Grid has cycles (use Dijkstra/BFS)"
+  ],
+  "stateTransition": [
+    {
+      "code": "dp[i][j] = dp[i-1][j] + dp[i][j-1]",
+      "comment": "// unique paths"
+    },
+    {
+      "code": "dp[i][j] = grid[i][j] + min(dp[i-1][j], dp[i][j-1])",
+      "comment": "// min path sum"
+    }
+  ],
+  "problems": [
+    {
+      "difficulty": "E",
+      "name": "Pascal's Triangle",
+      "number": "118",
+      "insight": "dp[i][j] = dp[i-1][j-1] + dp[i-1][j]"
+    },
+    {
+      "difficulty": "M",
+      "name": "Unique Paths",
+      "number": "62",
+      "insight": "Sum from top + left"
+    },
+    {
+      "difficulty": "M",
+      "name": "Unique Paths II",
+      "number": "63",
+      "insight": "Set obstacle cell to 0"
+    },
+    {
+      "difficulty": "M",
+      "name": "Minimum Path Sum",
+      "number": "64",
+      "insight": "Grid DP with cost"
+    },
+    {
+      "difficulty": "M",
+      "name": "Maximal Square",
+      "number": "221",
+      "insight": "dp[i][j] = min(top, left, diag) + 1"
+    },
+    {
+      "difficulty": "H",
+      "name": "Dungeon Game",
+      "number": "174",
+      "insight": "Reverse DP bottom-right to top-left"
+    },
+    {
+      "difficulty": "H",
+      "name": "Cherry Pickup II",
+      "number": "1463",
+      "insight": "dp[row][c1][c2] two pointers together"
+    }
+  ]
+}

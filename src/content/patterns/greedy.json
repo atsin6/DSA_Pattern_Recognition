@@ -1,0 +1,64 @@
+{
+  "id": "greedy",
+  "label": "Greedy",
+  "icon": "💰",
+  "iconBg": "var(--purple-bg)",
+  "subtitle": "Make locally optimal choice at each step — no reconsideration",
+  "signals": [
+    "interval scheduling / merging",
+    "minimum cost / maximum profit",
+    "activity selection",
+    "task scheduling",
+    "gas station / jump game",
+    "assign to minimize conflicts"
+  ],
+  "useWhen": [
+    "Local optimal leads to global optimal (provable)",
+    "Interval problems (sort by end time)",
+    "Fractional knapsack",
+    "Can prove greedy choice property"
+  ],
+  "avoidWhen": [
+    "Choices affect future in non-obvious ways",
+    "0/1 Knapsack (use DP)",
+    "Problem has overlapping subproblems"
+  ],
+  "problems": [
+    {
+      "difficulty": "E",
+      "name": "Assign Cookies",
+      "number": "455",
+      "insight": "Sort both, match smallest fit"
+    },
+    {
+      "difficulty": "E",
+      "name": "Lemonade Change",
+      "number": "860",
+      "insight": "Greedy with denominations"
+    },
+    {
+      "difficulty": "M",
+      "name": "Jump Game",
+      "number": "55",
+      "insight": "Track max reachable index"
+    },
+    {
+      "difficulty": "M",
+      "name": "Non-overlapping Intervals",
+      "number": "435",
+      "insight": "Sort by end, skip overlaps"
+    },
+    {
+      "difficulty": "M",
+      "name": "Gas Station",
+      "number": "134",
+      "insight": "Running sum, reset start"
+    },
+    {
+      "difficulty": "H",
+      "name": "Jump Game II",
+      "number": "45",
+      "insight": "BFS-like greedy levels"
+    }
+  ]
+}

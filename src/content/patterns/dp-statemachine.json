@@ -1,0 +1,77 @@
+{
+  "id": "dp-statemachine",
+  "label": "State Machine DP",
+  "icon": "⚙",
+  "iconBg": "var(--purple-bg)",
+  "subtitle": "Finite number of states with defined transitions — buy/sell/hold/cooldown",
+  "signals": [
+    "buy and sell stock with constraints",
+    "cooldown period after action",
+    "at most k transactions",
+    "hold / not hold state",
+    "transaction fee",
+    "finite states with named transitions"
+  ],
+  "useWhen": [
+    "Problem has explicit states (hold/sold/rest)",
+    "Transitions between states are clear",
+    "State space is small and bounded"
+  ],
+  "avoidWhen": [
+    "States are not well-defined or enumerable",
+    "No cooldown/transaction limit (simple greedy works)"
+  ],
+  "stateTransitionTitle": "State Transition (Stock with Cooldown)",
+  "stateTransition": [
+    {
+      "code": "hold[i] = max(hold[i-1], rest[i-1] - price[i])",
+      "comment": ""
+    },
+    {
+      "code": "sold[i] = hold[i-1] + price[i]",
+      "comment": ""
+    },
+    {
+      "code": "rest[i] = max(rest[i-1], sold[i-1])",
+      "comment": ""
+    }
+  ],
+  "problems": [
+    {
+      "difficulty": "E",
+      "name": "Best Time to Buy and Sell Stock",
+      "number": "121",
+      "insight": "1 transaction — track min price"
+    },
+    {
+      "difficulty": "M",
+      "name": "Best Time to Buy and Sell Stock II",
+      "number": "122",
+      "insight": "Unlimited — greedy sum of rises"
+    },
+    {
+      "difficulty": "M",
+      "name": "Best Time to Buy and Sell Stock with Cooldown",
+      "number": "309",
+      "insight": "3 states: hold, sold, rest"
+    },
+    {
+      "difficulty": "M",
+      "name": "Best Time to Buy and Sell Stock with Fee",
+      "number": "714",
+      "insight": "2 states: hold, cash"
+    },
+    {
+      "difficulty": "H",
+      "name": "Best Time to Buy and Sell Stock III",
+      "number": "123",
+      "insight": "At most 2 transactions — 4 states"
+    },
+    {
+      "difficulty": "H",
+      "name": "Best Time to Buy and Sell Stock IV",
+      "number": "188",
+      "insight": "At most k transactions — 2k states"
+    }
+  ]
+}

@@ -1,0 +1,120 @@
+.pageHeader {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  margin-bottom: 20px;
+}
+
+.pageIcon {
+  width: 42px;
+  height: 42px;
+  border-radius: 12px;
+  display: grid;
+  place-items: center;
+  font-size: 20px;
+  border: 1px solid var(--border-main);
+}
+
+.pageHeader h2 {
+  font-size: 24px;
+}
+
+.pageHeader p {
+  margin-top: 4px;
+}
+
+.cardsGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.card {
+  border: 1px solid var(--border-main);
+  border-radius: var(--radius-lg);
+  background: var(--bg-subtle);
+  padding: 16px;
+  box-shadow: var(--shadow-subtle);
+}
+
+.cardHeader {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.cardHeader h3 {
+  margin: 0;
+  font-size: 13px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.greenList,
+.redList {
+  margin: 0;
+  padding-left: 18px;
+}
+
+.greenList li,
+.redList li {
+  margin-bottom: 4px;
+  color: var(--text-secondary);
+  font-size: 13px;
+}
+
+.sectionTitle {
+  margin: 24px 0 10px;
+  font-size: 13px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-muted);
+}
+
+.patternGrid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.patternCard {
+  display: block;
+  text-decoration: none;
+  border: 1px solid var(--border-main);
+  border-radius: var(--radius-md);
+  background: var(--bg-subtle);
+  padding: 14px;
+  box-shadow: var(--shadow-subtle);
+  transition: transform var(--duration-base) ease, border-color var(--duration-base) ease;
+  animation: cardIn 280ms ease both;
+}
+
+.patternCard:hover {
+  transform: translateY(-2px);
+  border-color: var(--border-strong);
+}
+
+.cardTitle {
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.cardTags {
+  margin-top: 5px;
+  font-size: 11px;
+  color: var(--text-muted);
+  font-family: var(--font-mono);
+}
+
+@keyframes cardIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@media (max-width: 980px) {
+  .cardsGrid,
+  .patternGrid {
+    grid-template-columns: 1fr;
+  }
+}

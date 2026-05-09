@@ -1,0 +1,72 @@
+{
+  "id": "bsearch",
+  "label": "Binary Search",
+  "icon": "⚡",
+  "iconBg": "var(--teal-bg)",
+  "subtitle": "Eliminate half the search space each iteration — O(log n)",
+  "signals": [
+    "sorted array",
+    "find target in sorted",
+    "minimize / maximize answer",
+    "search on answer space",
+    "rotated sorted array",
+    "find peak / boundary",
+    "kth smallest/largest in matrix",
+    "feasibility check monotone"
+  ],
+  "useWhen": [
+    "Array or search space is sorted/monotone",
+    "Answer space is numeric and bounded",
+    "\"Can we achieve X with capacity Y?\" pattern",
+    "O(log n) required over O(n)"
+  ],
+  "avoidWhen": [
+    "Array is unsorted (unless you can binary search answer)",
+    "Elements don't have monotone property",
+    "Need to find all occurrences (use bounds)"
+  ],
+  "problems": [
+    {
+      "difficulty": "E",
+      "name": "Binary Search",
+      "number": "704",
+      "insight": "Classic template"
+    },
+    {
+      "difficulty": "E",
+      "name": "First Bad Version",
+      "number": "278",
+      "insight": "Find left boundary"
+    },
+    {
+      "difficulty": "M",
+      "name": "Find Minimum in Rotated Sorted Array",
+      "number": "153",
+      "insight": "Detect rotation pivot"
+    },
+    {
+      "difficulty": "M",
+      "name": "Search in Rotated Sorted Array",
+      "number": "33",
+      "insight": "Which half is sorted?"
+    },
+    {
+      "difficulty": "M",
+      "name": "Koko Eating Bananas",
+      "number": "875",
+      "insight": "Binary search on answer"
+    },
+    {
+      "difficulty": "H",
+      "name": "Median of Two Sorted Arrays",
+      "number": "4",
+      "insight": "Partition both arrays"
+    },
+    {
+      "difficulty": "H",
+      "name": "Split Array Largest Sum",
+      "number": "410",
+      "insight": "BS on sum space"
+    }
+  ]
+}

@@ -1,0 +1,78 @@
+{
+  "id": "dp-tree",
+  "label": "Tree DP",
+  "icon": "🌿",
+  "iconBg": "var(--purple-bg)",
+  "subtitle": "Post-order DFS — compute answer at each node from child results",
+  "signals": [
+    "max/min path in tree",
+    "independent set on tree (no adjacent nodes)",
+    "subtree size / depth",
+    "diameter of tree",
+    "min cameras to cover tree",
+    "rerooting / centroid DP",
+    "coloring tree nodes with constraints"
+  ],
+  "useWhen": [
+    "Each node's answer depends on its children",
+    "Choosing include/exclude for nodes in tree",
+    "Aggregating subtree info upward"
+  ],
+  "avoidWhen": [
+    "Graph has cycles (not a tree)",
+    "Answer only needs traversal — use simple DFS"
+  ],
+  "stateTransitionTitle": "State Transition (House Robber on Tree)",
+  "stateTransition": [
+    {
+      "code": "dfs(node) → (rob, skip):",
+      "comment": ""
+    },
+    {
+      "code": "  rob = node.val + sum(skip[child] for child)",
+      "comment": ""
+    },
+    {
+      "code": "  skip = sum(max(rob[c], skip[c]) for child)",
+      "comment": ""
+    }
+  ],
+  "problems": [
+    {
+      "difficulty": "M",
+      "name": "House Robber III",
+      "number": "337",
+      "insight": "Post-order (rob, skip) pair"
+    },
+    {
+      "difficulty": "M",
+      "name": "Diameter of Binary Tree",
+      "number": "543",
+      "insight": "Max left depth + right depth"
+    },
+    {
+      "difficulty": "M",
+      "name": "Longest Univalue Path",
+      "number": "687",
+      "insight": "Post-order path through parent"
+    },
+    {
+      "difficulty": "H",
+      "name": "Binary Tree Maximum Path Sum",
+      "number": "124",
+      "insight": "Post-order + global max update"
+    },
+    {
+      "difficulty": "H",
+      "name": "Binary Tree Cameras",
+      "number": "968",
+      "insight": "3-state greedy DP: covered/camera/uncovered"
+    },
+    {
+      "difficulty": "H",
+      "name": "Sum of Distances in Tree",
+      "number": "834",
+      "insight": "Rerooting DP — 2 DFS passes"
+    }
+  ]
+}

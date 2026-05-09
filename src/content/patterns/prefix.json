@@ -1,0 +1,64 @@
+{
+  "id": "prefix",
+  "label": "Prefix Sum",
+  "icon": "∑",
+  "iconBg": "var(--green-bg)",
+  "subtitle": "Precompute cumulative sums for O(1) range queries",
+  "signals": [
+    "range sum query",
+    "subarray sum = k",
+    "number of subarrays with sum",
+    "multiple queries on same array",
+    "2D grid sum queries",
+    "contiguous subarray count"
+  ],
+  "useWhen": [
+    "Multiple range sum queries needed",
+    "Count of subarrays with exact sum",
+    "Immutable array with repeated queries",
+    "Difference arrays for range updates"
+  ],
+  "avoidWhen": [
+    "Array is modified frequently (use Fenwick tree)",
+    "Window size is fixed (sliding window is simpler)",
+    "You only need one range sum"
+  ],
+  "problems": [
+    {
+      "difficulty": "E",
+      "name": "Running Sum of 1d Array",
+      "number": "1480",
+      "insight": "Basic prefix build"
+    },
+    {
+      "difficulty": "E",
+      "name": "Range Sum Query — Immutable",
+      "number": "303",
+      "insight": "prefix[r] - prefix[l-1]"
+    },
+    {
+      "difficulty": "M",
+      "name": "Subarray Sum Equals K",
+      "number": "560",
+      "insight": "prefix + HashMap count"
+    },
+    {
+      "difficulty": "M",
+      "name": "Contiguous Array",
+      "number": "525",
+      "insight": "Map first occurrence of prefix"
+    },
+    {
+      "difficulty": "M",
+      "name": "Range Sum Query 2D — Immutable",
+      "number": "304",
+      "insight": "2D prefix sum"
+    },
+    {
+      "difficulty": "H",
+      "name": "Maximum Sum of 3 Non-Overlapping Subarrays",
+      "number": "689",
+      "insight": "Prefix + window combo"
+    }
+  ]
+}

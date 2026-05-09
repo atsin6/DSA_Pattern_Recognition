@@ -1,0 +1,57 @@
+{
+  "id": "uf",
+  "label": "Union Find",
+  "icon": "🔗",
+  "iconBg": "var(--coral-bg)",
+  "subtitle": "Efficiently track and merge disjoint components",
+  "signals": [
+    "dynamic connectivity",
+    "number of connected components",
+    "cycle detection in undirected graph",
+    "union operations online",
+    "Kruskal's MST",
+    "friends / accounts merge"
+  ],
+  "useWhen": [
+    "Dynamic merging of groups",
+    "Online union + find queries",
+    "Connectivity without full BFS/DFS"
+  ],
+  "avoidWhen": [
+    "Directed graph (use DFS + visited)",
+    "Need path between two nodes (use BFS)",
+    "Edges are weighted (use Prim's / Dijkstra)"
+  ],
+  "problems": [
+    {
+      "difficulty": "E",
+      "name": "Find if Path Exists in Graph",
+      "number": "1971",
+      "insight": "Union all edges, find source"
+    },
+    {
+      "difficulty": "M",
+      "name": "Number of Connected Components",
+      "number": "323",
+      "insight": "Count distinct roots"
+    },
+    {
+      "difficulty": "M",
+      "name": "Redundant Connection",
+      "number": "684",
+      "insight": "Edge that creates cycle"
+    },
+    {
+      "difficulty": "M",
+      "name": "Accounts Merge",
+      "number": "721",
+      "insight": "Email → union accounts"
+    },
+    {
+      "difficulty": "H",
+      "name": "Number of Islands II",
+      "number": "305",
+      "insight": "Online union as land added"
+    }
+  ]
+}

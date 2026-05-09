@@ -1,0 +1,64 @@
+{
+  "id": "bit",
+  "label": "Bit Manipulation",
+  "icon": "⊕",
+  "iconBg": "var(--amber-bg)",
+  "subtitle": "XOR, AND, OR, shifts for O(1) tricks and subset enumeration",
+  "signals": [
+    "single number (others appear twice)",
+    "power of 2 check",
+    "count set bits",
+    "XOR to find missing/duplicate",
+    "subset enumeration with bitmask",
+    "swap without temp"
+  ],
+  "useWhen": [
+    "Operations on individual bits needed",
+    "XOR trick for unique/missing element",
+    "Small n (≤20) subset enumeration",
+    "Space-O(1) replacement for hashmap"
+  ],
+  "avoidWhen": [
+    "Problem doesn't involve integers/bits",
+    "Bitmask DP state > 2^20 (too large)",
+    "Readability matters more than micro-optimization"
+  ],
+  "problems": [
+    {
+      "difficulty": "E",
+      "name": "Single Number",
+      "number": "136",
+      "insight": "XOR all elements"
+    },
+    {
+      "difficulty": "E",
+      "name": "Number of 1 Bits",
+      "number": "191",
+      "insight": "n & (n-1) clears lowest bit"
+    },
+    {
+      "difficulty": "E",
+      "name": "Power of Two",
+      "number": "231",
+      "insight": "n & (n-1) == 0"
+    },
+    {
+      "difficulty": "M",
+      "name": "Sum of Two Integers",
+      "number": "371",
+      "insight": "XOR sum + AND carry"
+    },
+    {
+      "difficulty": "M",
+      "name": "Counting Bits",
+      "number": "338",
+      "insight": "dp[i] = dp[i>>1] + (i&1)"
+    },
+    {
+      "difficulty": "H",
+      "name": "Maximum AND Sum of Array",
+      "number": "2171",
+      "insight": "Bitmask DP"
+    }
+  ]
+}

@@ -1,31 +1,105 @@
 # DSA Pattern Recognition
 
-This project is my personal DSA pattern handbook built as an interactive web app.
-I wanted one place where I could quickly map a problem to the right pattern, compare approaches, and jump into practice questions.
+A route-driven, data-validated DSA handbook built with React + TypeScript.
 
-I vibecoded it.
+## What this app does
 
-## What this is
-
-- A pattern recognition guide for coding interviews and problem-solving.
-- Split into topic areas like Array/String, Recursion/DP, Trees/Graphs, and advanced patterns.
-- Includes framework-style views (`Pattern Map`, `Decision Framework`, `Cross-Pattern Comparison`) for quick direction.
-- Problem tables include difficulty + key idea, and each problem links out to LeetCode.
-- Comes with a light/dark theme toggle.
+- Helps map problem signals to DSA patterns quickly.
+- Provides three framework views:
+  - Pattern Map (`/`)
+  - Decision Framework (`/framework/decision`)
+  - Cross-Pattern Comparison (`/framework/compare`)
+- Supports deep links for every pattern page (`/patterns/:patternId`).
+- Keeps home search URL-shareable with query params (`/?q=...`).
+- Includes light/dark theme persistence via `localStorage['dsa-theme']`.
 
 ## Tech stack
 
-- React
-- Vite
-- CSS (with a legacy-content rendering layer + custom UI polish)
+- React 18
+- React Router 6
+- TypeScript
+- Vite 5
+- Zod schema validation for content
+- Vitest + React Testing Library
+- CSS Modules + design tokens
+
+## Scripts
+
+```bash
+npm run dev
+npm run build
+npm run preview
+npm run typecheck
+npm run test
+npm run test:watch
+```
 
 ## Project structure
 
-- `src/App.jsx` — app behavior and UI layer (theme, navbar tabs, search/table normalization).
-- `src/main.jsx` — React bootstrap.
-- `public/legacy-content.html` — source knowledge content rendered inside the app.
-- `index.html` — Vite root HTML.
+```text
+src/
+├── app/                      # App shell + route composition
+├── content/
+│   └── patterns/             # One JSON file per pattern
+├── features/
+│   ├── patterns/             # Pattern pages, tables, validated content loader
+│   ├── framework/            # Decision framework page + data
+│   └── compare/              # Cross-pattern comparison page + data
+├── shared/
+│   ├── styles/               # Global tokens + base styles
+│   ├── types/                # Domain interfaces
+│   └── ui/                   # Shared topbar + sidebar
+└── test/                     # Test setup
+```
 
-## License
+## Content contract (JSON)
 
-Personal/project use.
+Each pattern file in `src/content/patterns/*.json` follows this shape:
+
+- Required: `id`, `label`, `icon`, `iconBg`, `subtitle`
+- Optional arrays: `signals`, `useWhen`, `avoidWhen`, `problems`
+- Optional DP fields: `dpOverview`, `useWhenTitle`, `useWhenItems`, `avoidWhenTitle`, `avoidWhenItems`, `subPatterns`
+- Optional transition fields: `stateTransitionTitle`, `stateTransition`
+
+Example problem row:
+
+```json
+{
+  "difficulty": "M",
+  "name": "Longest Substring Without Repeating Characters",
+  "number": "3",
+  "insight": "Variable window + HashMap"
+}
+```
+
+At startup, all pattern JSON files are validated with Zod. Invalid rows fail fast with actionable issue paths.
+
+## Adding a new pattern
+
+1. Create `src/content/patterns/<id>.json`.
+2. Ensure it matches the schema in `src/features/patterns/data/pattern-schema.ts`.
+3. Add `<id>` to category/home configs in `src/features/patterns/data/pattern-config.ts`.
+4. Run:
+
+```bash
+npm run typecheck
+npm run test
+```
+
+## Routing contract
+
+- `/`
+- `/framework/decision`
+- `/framework/compare`
+- `/patterns/:patternId`
+
+Unknown pattern IDs render an explicit not-found card in-app.
+
+## Accessibility and responsive behavior
+
+- Semantic links/buttons for all interactive navigation surfaces.
+- Keyboard-visible focus rings.
+- Motion respects `prefers-reduced-motion`.
+- Mobile topic drawer replaces desktop sidebar under tablet breakpoints.
+
+See [CONTRIBUTING.md](./CONTRIBUTING.md) for contributor workflow and [MIGRATION.md](./MIGRATION.md) for old-to-new mapping notes.

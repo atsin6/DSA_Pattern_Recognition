@@ -1,0 +1,71 @@
+{
+  "id": "heap",
+  "label": "Heap / Priority Queue",
+  "icon": "⛰",
+  "iconBg": "var(--amber-bg)",
+  "subtitle": "Maintain sorted-by-priority access in O(log n)",
+  "signals": [
+    "top K elements",
+    "Kth largest / smallest",
+    "merge K sorted lists",
+    "median from data stream",
+    "next smallest in matrix",
+    "task scheduling with cooldown",
+    "Dijkstra's algorithm"
+  ],
+  "useWhen": [
+    "Repeatedly need min or max element",
+    "Dynamic stream of data with K-query",
+    "Merging multiple sorted structures",
+    "Weighted graph shortest path"
+  ],
+  "avoidWhen": [
+    "Static data — just sort it O(n log n)",
+    "Need random access (use array)",
+    "Only need a single pass max/min"
+  ],
+  "problems": [
+    {
+      "difficulty": "E",
+      "name": "Last Stone Weight",
+      "number": "1046",
+      "insight": "Max-heap simulation"
+    },
+    {
+      "difficulty": "E",
+      "name": "Kth Largest Element in a Stream",
+      "number": "703",
+      "insight": "Min-heap of size k"
+    },
+    {
+      "difficulty": "M",
+      "name": "Kth Largest Element in Array",
+      "number": "215",
+      "insight": "Min-heap or quickselect"
+    },
+    {
+      "difficulty": "M",
+      "name": "Task Scheduler",
+      "number": "621",
+      "insight": "Max-heap + cooldown queue"
+    },
+    {
+      "difficulty": "M",
+      "name": "K Closest Points to Origin",
+      "number": "973",
+      "insight": "Max-heap of size k"
+    },
+    {
+      "difficulty": "H",
+      "name": "Find Median from Data Stream",
+      "number": "295",
+      "insight": "Two heaps (max+min)"
+    },
+    {
+      "difficulty": "H",
+      "name": "Merge k Sorted Lists",
+      "number": "23",
+      "insight": "Min-heap with list nodes"
+    }
+  ]
+}

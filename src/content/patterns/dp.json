@@ -1,0 +1,78 @@
+{
+  "id": "dp",
+  "label": "DP — Overview",
+  "icon": "🧮",
+  "iconBg": "var(--purple-bg)",
+  "subtitle": "10 sub-patterns — click any card to open its detailed page",
+  "dpOverview": true,
+  "useWhenTitle": "Use DP When",
+  "useWhenIcon": "📡",
+  "useWhenColor": "var(--blue)",
+  "useWhenItems": [
+    "Recursive solution has repeated sub-calls (overlapping subproblems)",
+    "Optimal answer built from optimal sub-answers (optimal substructure)",
+    "Need count of ways, min/max cost, or yes/no feasibility",
+    "State describable with 1–3 variables"
+  ],
+  "avoidWhenTitle": "Avoid DP When",
+  "avoidWhenIcon": "🚫",
+  "avoidWhenColor": "var(--red)",
+  "avoidWhenItems": [
+    "No overlapping subproblems → Divide & Conquer",
+    "Greedy choice property holds → use Greedy",
+    "State space is exponential and no bitmask encoding helps",
+    "Problem needs ALL configurations listed → use Backtracking"
+  ],
+  "subPatterns": [
+    {
+      "id": "dp-linear",
+      "title": "1D Linear DP",
+      "tags": "dp[i] from dp[i-1] or dp[i-2]"
+    },
+    {
+      "id": "dp-grid",
+      "title": "2D / Grid DP",
+      "tags": "dp[i][j] on matrix / two indices"
+    },
+    {
+      "id": "dp-01knap",
+      "title": "0/1 Knapsack",
+      "tags": "include or skip each item once"
+    },
+    {
+      "id": "dp-unbounded",
+      "title": "Unbounded Knapsack",
+      "tags": "item can be reused unlimited times"
+    },
+    {
+      "id": "dp-lcs",
+      "title": "LCS — Two-String DP",
+      "tags": "edit distance · common subseq"
+    },
+    {
+      "id": "dp-lis",
+      "title": "LIS",
+      "tags": "longest increasing subsequence"
+    },
+    {
+      "id": "dp-interval",
+      "title": "Interval DP",
+      "tags": "dp[i][j] on range segments"
+    },
+    {
+      "id": "dp-statemachine",
+      "title": "State Machine DP",
+      "tags": "finite states · buy/sell · cooldown"
+    },
+    {
+      "id": "dp-bitmask",
+      "title": "Bitmask DP",
+      "tags": "state as bitmask · n ≤ 20"
+    },
+    {
+      "id": "dp-tree",
+      "title": "Tree DP",
+      "tags": "post-order · rerooting · subtree"
+    }
+  ]
+}

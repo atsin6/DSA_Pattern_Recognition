@@ -1,0 +1,79 @@
+{
+  "id": "sliding",
+  "label": "Sliding Window",
+  "icon": "🪟",
+  "iconBg": "var(--green-bg)",
+  "subtitle": "Variable or fixed-size window moving over array/string",
+  "signals": [
+    "subarray / substring",
+    "contiguous elements",
+    "longest / shortest window",
+    "k distinct characters",
+    "at most / at least k",
+    "no repeating characters",
+    "max sum of size k",
+    "minimum window containing all"
+  ],
+  "useWhen": [
+    "Contiguous subarray/substring required",
+    "Fixed or variable window size",
+    "Linear scan is enough",
+    "Frequency constraint within window"
+  ],
+  "avoidWhen": [
+    "Non-contiguous elements needed",
+    "Elements can be reused from anywhere",
+    "Need all combinations (use backtracking)",
+    "Array is unsorted and search is needed"
+  ],
+  "problems": [
+    {
+      "difficulty": "E",
+      "name": "Maximum Average Subarray I",
+      "number": "643",
+      "insight": "Fixed window of size k"
+    },
+    {
+      "difficulty": "E",
+      "name": "Contains Duplicate II",
+      "number": "219",
+      "insight": "Window + HashSet"
+    },
+    {
+      "difficulty": "E",
+      "name": "Best Time to Buy/Sell Stock",
+      "number": "121",
+      "insight": "Track min so far"
+    },
+    {
+      "difficulty": "M",
+      "name": "Longest Substring Without Repeating Characters",
+      "number": "3",
+      "insight": "Variable window + HashMap"
+    },
+    {
+      "difficulty": "M",
+      "name": "Longest Repeating Character Replacement",
+      "number": "424",
+      "insight": "maxFreq trick"
+    },
+    {
+      "difficulty": "M",
+      "name": "Permutation in String",
+      "number": "567",
+      "insight": "Fixed window + freq map"
+    },
+    {
+      "difficulty": "H",
+      "name": "Minimum Window Substring",
+      "number": "76",
+      "insight": "Two-pointer + freq map"
+    },
+    {
+      "difficulty": "H",
+      "name": "Sliding Window Maximum",
+      "number": "239",
+      "insight": "Monotonic deque"
+    }
+  ]
+}
