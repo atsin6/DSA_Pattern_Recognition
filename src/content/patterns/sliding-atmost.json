@@ -1,0 +1,70 @@
+{
+  "id": "sliding-atmost",
+  "label": "Sliding Window — At Most K / Count",
+  "icon": "🧮",
+  "iconBg": "var(--green-bg)",
+  "subtitle": "Exactly k is often solved by atMost(k) - atMost(k-1)",
+  "signals": [
+    "number of subarrays with exactly k distinct",
+    "count of nice subarrays (k odds)",
+    "exactly k zeros/ones style counting",
+    "count valid subarrays under constraint"
+  ],
+  "useWhen": [
+    "Exactly k is hard to track directly",
+    "atMost(k) - atMost(k-1) cleanly gives exactly k",
+    "Need count of windows, not just one best window"
+  ],
+  "avoidWhen": [
+    "Need the actual subarray boundaries rather than count",
+    "Exactly k sum with negatives (use Prefix Sum + HashMap)"
+  ],
+  "stateTransitionTitle": "Key Transition",
+  "stateTransition": [
+    {
+      "code": "const atMost = (k) => { let l = 0, count = 0; ... }"
+    },
+    {
+      "code": "while (invalid()) remove(nums[l++])"
+    },
+    {
+      "code": "count += r - l + 1",
+      "comment": "// all valid windows ending at r"
+    },
+    {
+      "code": "answer = atMost(k) - atMost(k - 1)"
+    }
+  ],
+  "problems": [
+    {
+      "difficulty": "M",
+      "name": "Count Number of Nice Subarrays",
+      "number": "1248",
+      "insight": "Exactly k odds via subtraction"
+    },
+    {
+      "difficulty": "M",
+      "name": "Binary Subarrays With Sum",
+      "number": "930",
+      "insight": "Exactly k via atMost difference"
+    },
+    {
+      "difficulty": "M",
+      "name": "Subarray Product Less Than K",
+      "number": "713",
+      "insight": "Count windows with r - l + 1"
+    },
+    {
+      "difficulty": "H",
+      "name": "Subarrays with K Different Integers",
+      "number": "992",
+      "insight": "Exactly k distinct via subtraction"
+    },
+    {
+      "difficulty": "H",
+      "name": "Substrings Containing All Three Characters",
+      "number": "1358",
+      "insight": "Counting trick on valid starts"
+    }
+  ]
+}

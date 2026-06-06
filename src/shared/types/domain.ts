@@ -12,7 +12,7 @@ export interface StateTransitionLine {
   comment?: string
 }
 
-export interface DPSubPattern {
+export interface SubPatternLink {
   id: string
   title: string
   tags: string
@@ -30,6 +30,11 @@ export interface Pattern {
   problems?: Problem[]
   stateTransition?: StateTransitionLine[]
   stateTransitionTitle?: string
+  overview?: boolean
+  overviewTitle?: string
+  overviewSubtitle?: string
+  subPatternsTitle?: string
+  // Backward-compatible alias; prefer `overview`.
   dpOverview?: boolean
   useWhenTitle?: string
   useWhenIcon?: string
@@ -39,7 +44,7 @@ export interface Pattern {
   avoidWhenIcon?: string
   avoidWhenColor?: string
   avoidWhenItems?: string[]
-  subPatterns?: DPSubPattern[]
+  subPatterns?: SubPatternLink[]
   color?: string
 }
 
@@ -49,7 +54,8 @@ export interface Category {
 }
 
 export interface FrameworkTab {
-  id: 'home' | 'decision' | 'compare'
+  id: string
+  path: string
   label: string
   color: string
 }

@@ -50,7 +50,7 @@ export function Topbar({
           {FRAMEWORK_TABS.map((tab) => (
             <NavLink
               key={tab.id}
-              to={tab.id === 'home' ? '/' : tab.id === 'decision' ? '/framework/decision' : '/framework/compare'}
+              to={tab.path}
               className={({ isActive }) => `${styles.frameworkTabButton} ${isActive ? styles.active : ''}`}
             >
               <span className={styles.frameworkDot} style={{ background: tab.color }} />

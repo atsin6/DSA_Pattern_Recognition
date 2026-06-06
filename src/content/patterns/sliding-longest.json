@@ -1,0 +1,71 @@
+{
+  "id": "sliding-longest",
+  "label": "Sliding Window — Variable Longest",
+  "icon": "📐",
+  "iconBg": "var(--green-bg)",
+  "subtitle": "Maximize window; shrink only when invalid",
+  "signals": [
+    "longest subarray/substring",
+    "at most k replacements",
+    "without repeating characters",
+    "at most k distinct elements",
+    "maximize window length"
+  ],
+  "useWhen": [
+    "Goal is to maximize window length",
+    "Violations are allowed until condition becomes invalid",
+    "Shrink only when window is invalid"
+  ],
+  "avoidWhen": [
+    "Goal is to minimize window length (use Variable Shortest)",
+    "Negative numbers with exact sum constraints (use Prefix Sum)"
+  ],
+  "stateTransitionTitle": "Key Transition",
+  "stateTransition": [
+    {
+      "code": "let l = 0, ans = 0"
+    },
+    {
+      "code": "for (let r = 0; r < n; r++) add(nums[r])"
+    },
+    {
+      "code": "while (windowInvalid()) remove(nums[l++])",
+      "comment": "// restore validity"
+    },
+    {
+      "code": "ans = Math.max(ans, r - l + 1)"
+    }
+  ],
+  "problems": [
+    {
+      "difficulty": "M",
+      "name": "Longest Substring Without Repeating Characters",
+      "number": "3",
+      "insight": "Shrink when char repeats"
+    },
+    {
+      "difficulty": "M",
+      "name": "Longest Repeating Character Replacement",
+      "number": "424",
+      "insight": "Invalid when len - maxFreq > k"
+    },
+    {
+      "difficulty": "M",
+      "name": "Max Consecutive Ones III",
+      "number": "1004",
+      "insight": "At most k zeros in window"
+    },
+    {
+      "difficulty": "M",
+      "name": "Fruits Into Baskets",
+      "number": "904",
+      "insight": "At most 2 distinct values"
+    },
+    {
+      "difficulty": "H",
+      "name": "Longest Substring with At Most K Distinct Characters",
+      "number": "340",
+      "insight": "Map size > k -> shrink"
+    }
+  ]
+}

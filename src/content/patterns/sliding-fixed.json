@@ -1,0 +1,72 @@
+{
+  "id": "sliding-fixed",
+  "label": "Sliding Window — Fixed Size",
+  "icon": "📏",
+  "iconBg": "var(--green-bg)",
+  "subtitle": "Window size k never changes",
+  "signals": [
+    "subarray of size k",
+    "max/avg of every k-window",
+    "sum of exactly k elements",
+    "product/stat over fixed window",
+    "contains duplicate within k"
+  ],
+  "useWhen": [
+    "Window size k is given and constant",
+    "Add right and remove left in each step",
+    "Need stat over every k-length window"
+  ],
+  "avoidWhen": [
+    "Window size varies by validity condition",
+    "Need index search logic instead of fixed window stat"
+  ],
+  "stateTransitionTitle": "Key Transition",
+  "stateTransition": [
+    {
+      "code": "for (let r = 0; r < n; r++) add(nums[r])",
+      "comment": "// expand right"
+    },
+    {
+      "code": "if (r - l + 1 === k) { updateAns(); remove(nums[l++]); }",
+      "comment": "// keep size fixed"
+    }
+  ],
+  "problems": [
+    {
+      "difficulty": "E",
+      "name": "Maximum Average Subarray I",
+      "number": "643",
+      "insight": "Sum fixed window and divide by k"
+    },
+    {
+      "difficulty": "E",
+      "name": "Contains Duplicate II",
+      "number": "219",
+      "insight": "HashSet constrained by window size k"
+    },
+    {
+      "difficulty": "M",
+      "name": "Find All Anagrams in a String",
+      "number": "438",
+      "insight": "Fixed |p| window + freq match"
+    },
+    {
+      "difficulty": "M",
+      "name": "Subarray Product Less Than K",
+      "number": "713",
+      "insight": "Window product and count windows"
+    },
+    {
+      "difficulty": "H",
+      "name": "Sliding Window Maximum",
+      "number": "239",
+      "insight": "Fixed k + monotonic deque"
+    },
+    {
+      "difficulty": "H",
+      "name": "Maximum Average Subarray II",
+      "number": "644",
+      "insight": "Binary search on average + window check"
+    }
+  ]
+}

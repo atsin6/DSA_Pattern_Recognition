@@ -40,9 +40,11 @@ npm run test:watch
 src/
 ├── app/                      # App shell + route composition
 ├── content/
-│   └── patterns/             # One JSON file per pattern
+│   ├── config/
+│   │   └── pattern-catalog.json   # Sidebar/home/framework registration data
+│   └── patterns/                   # One JSON file per pattern
 ├── features/
-│   ├── patterns/             # Pattern pages, tables, validated content loader
+│   ├── patterns/             # Pattern pages, validated content loader
 │   ├── framework/            # Decision framework page + data
 │   └── compare/              # Cross-pattern comparison page + data
 ├── shared/
@@ -52,13 +54,16 @@ src/
 └── test/                     # Test setup
 ```
 
-## Content contract (JSON)
+## Content contract
+
+### Pattern files
 
 Each pattern file in `src/content/patterns/*.json` follows this shape:
 
 - Required: `id`, `label`, `icon`, `iconBg`, `subtitle`
 - Optional arrays: `signals`, `useWhen`, `avoidWhen`, `problems`
-- Optional DP fields: `dpOverview`, `useWhenTitle`, `useWhenItems`, `avoidWhenTitle`, `avoidWhenItems`, `subPatterns`
+- Optional overview fields: `overview`, `overviewTitle`, `overviewSubtitle`, `subPatternsTitle`, `subPatterns`
+- Optional legacy alias: `dpOverview` (supported for backward compatibility)
 - Optional transition fields: `stateTransitionTitle`, `stateTransition`
 
 Example problem row:
@@ -72,18 +77,33 @@ Example problem row:
 }
 ```
 
-At startup, all pattern JSON files are validated with Zod. Invalid rows fail fast with actionable issue paths.
+### Catalog registration file
+
+`src/content/config/pattern-catalog.json` drives:
+
+- `frameworkTabs`
+- `categories`
+- `homeCards`
+- `subPatternIds`
+- `categoryTones`
+
+Both pattern JSON and catalog JSON are schema-validated at startup.
+The app also cross-validates references (unknown IDs, uncategorized patterns, invalid overview links).
 
 ## Adding a new pattern
 
 1. Create `src/content/patterns/<id>.json`.
-2. Ensure it matches the schema in `src/features/patterns/data/pattern-schema.ts`.
-3. Add `<id>` to category/home configs in `src/features/patterns/data/pattern-config.ts`.
+2. Register `<id>` in `src/content/config/pattern-catalog.json`:
+   - Add to one category.
+   - Optionally add to `homeCards`.
+   - If it is a sub-pattern page, add it to `subPatternIds`.
+3. For overview pages (DP/Sliding style), add `subPatterns` links in the overview JSON.
 4. Run:
 
 ```bash
 npm run typecheck
 npm run test
+npm run build
 ```
 
 ## Routing contract

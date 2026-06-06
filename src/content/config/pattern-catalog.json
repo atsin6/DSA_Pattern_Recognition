@@ -1,0 +1,85 @@
+{
+  "frameworkTabs": [
+    { "id": "home", "path": "/", "label": "Pattern Map", "color": "#4f8ef7" },
+    { "id": "decision", "path": "/framework/decision", "label": "Decision Framework", "color": "#f5a623" },
+    { "id": "compare", "path": "/framework/compare", "label": "Cross-Pattern Comparison", "color": "#14b8a6" }
+  ],
+  "categories": [
+    {
+      "title": "Array / String",
+      "ids": [
+        "sliding",
+        "sliding-fixed",
+        "sliding-longest",
+        "sliding-shortest",
+        "sliding-atmost",
+        "sliding-freq",
+        "twoptr",
+        "prefix",
+        "hashing",
+        "bsearch",
+        "mono"
+      ]
+    },
+    {
+      "title": "Recursion / DP",
+      "ids": [
+        "backtrack",
+        "greedy",
+        "dp",
+        "dp-linear",
+        "dp-grid",
+        "dp-01knap",
+        "dp-unbounded",
+        "dp-lcs",
+        "dp-lis",
+        "dp-interval",
+        "dp-statemachine",
+        "dp-bitmask",
+        "dp-tree"
+      ]
+    },
+    { "title": "Trees / Graphs", "ids": ["trees", "graphs", "uf"] },
+    { "title": "Advanced", "ids": ["heap", "bit", "trie"] }
+  ],
+  "homeCards": [
+    "sliding",
+    "twoptr",
+    "prefix",
+    "hashing",
+    "bsearch",
+    "backtrack",
+    "greedy",
+    "dp",
+    "trees",
+    "graphs",
+    "heap",
+    "mono",
+    "bit",
+    "trie",
+    "uf"
+  ],
+  "subPatternIds": [
+    "sliding-fixed",
+    "sliding-longest",
+    "sliding-shortest",
+    "sliding-atmost",
+    "sliding-freq",
+    "dp-linear",
+    "dp-grid",
+    "dp-01knap",
+    "dp-unbounded",
+    "dp-lcs",
+    "dp-lis",
+    "dp-interval",
+    "dp-statemachine",
+    "dp-bitmask",
+    "dp-tree"
+  ],
+  "categoryTones": {
+    "Array / String": { "main": "var(--tone-green)", "sub": "var(--tone-green)" },
+    "Recursion / DP": { "main": "var(--tone-berry)", "sub": "var(--tone-indigo)" },
+    "Trees / Graphs": { "main": "var(--tone-coral)", "sub": "var(--tone-coral)" },
+    "Advanced": { "main": "var(--tone-amber)", "sub": "var(--tone-amber)" }
+  }
+}

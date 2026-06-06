@@ -1,0 +1,66 @@
+{
+  "id": "sliding-shortest",
+  "label": "Sliding Window — Variable Shortest",
+  "icon": "✂",
+  "iconBg": "var(--green-bg)",
+  "subtitle": "Minimize window; shrink while still valid",
+  "signals": [
+    "minimum length subarray",
+    "smallest window with sum >= target",
+    "minimum window containing all characters",
+    "find if valid window exists"
+  ],
+  "useWhen": [
+    "Goal is to minimize window length",
+    "Shrink left aggressively while condition remains valid",
+    "Update answer inside the shrinking loop"
+  ],
+  "avoidWhen": [
+    "Goal is to maximize (use Variable Longest)",
+    "Negative numbers break monotone shrinking behavior"
+  ],
+  "stateTransitionTitle": "Key Transition",
+  "stateTransition": [
+    {
+      "code": "let l = 0, ans = Infinity"
+    },
+    {
+      "code": "for (let r = 0; r < n; r++) add(nums[r])"
+    },
+    {
+      "code": "while (windowValid()) { ans = Math.min(ans, r - l + 1); remove(nums[l++]); }"
+    }
+  ],
+  "problems": [
+    {
+      "difficulty": "M",
+      "name": "Minimum Size Subarray Sum",
+      "number": "209",
+      "insight": "Shrink while sum >= target"
+    },
+    {
+      "difficulty": "M",
+      "name": "Minimum Operations to Reduce X to Zero",
+      "number": "1658",
+      "insight": "Reframe as longest kept subarray"
+    },
+    {
+      "difficulty": "H",
+      "name": "Minimum Window Substring",
+      "number": "76",
+      "insight": "Formed counter + shrink for minimum"
+    },
+    {
+      "difficulty": "H",
+      "name": "Shortest Subarray with Sum at Least K",
+      "number": "862",
+      "insight": "Negatives require deque + prefix sum"
+    },
+    {
+      "difficulty": "H",
+      "name": "Minimum Window Subsequence",
+      "number": "727",
+      "insight": "Forward match then shrink"
+    }
+  ]
+}

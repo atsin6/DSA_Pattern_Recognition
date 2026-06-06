@@ -1,0 +1,61 @@
+{
+  "id": "sliding-freq",
+  "label": "Sliding Window — Frequency Map",
+  "icon": "🔡",
+  "iconBg": "var(--green-bg)",
+  "subtitle": "Track validity using frequency map + formed counter",
+  "signals": [
+    "window must contain all chars of pattern",
+    "permutation/anagram of pattern in string",
+    "character frequency must match target",
+    "find all start indices of anagram"
+  ],
+  "useWhen": [
+    "Window validity depends on matching character counts",
+    "formed/required counters avoid full map rescans",
+    "Target is a distribution of characters or words"
+  ],
+  "avoidWhen": [
+    "Constraint is purely numerical with simple counters",
+    "Order of characters itself is the primary constraint"
+  ],
+  "stateTransitionTitle": "Key Transition",
+  "stateTransition": [
+    {
+      "code": "const need = freq(pattern), have = {}, required = Object.keys(need).length"
+    },
+    {
+      "code": "if (have[ch] === need[ch]) formed++",
+      "comment": "// when requirement for char is satisfied"
+    },
+    {
+      "code": "while (formed === required) { updateAns(); shrinkLeft(); updateFormed(); }"
+    }
+  ],
+  "problems": [
+    {
+      "difficulty": "M",
+      "name": "Permutation in String",
+      "number": "567",
+      "insight": "Fixed-size freq map match"
+    },
+    {
+      "difficulty": "M",
+      "name": "Find All Anagrams in a String",
+      "number": "438",
+      "insight": "Same as 567, collect all starts"
+    },
+    {
+      "difficulty": "H",
+      "name": "Minimum Window Substring",
+      "number": "76",
+      "insight": "Formed counter + shrink for minimum"
+    },
+    {
+      "difficulty": "H",
+      "name": "Substring with Concatenation of All Words",
+      "number": "30",
+      "insight": "Word-size jumps + word freq maps"
+    }
+  ]
+}

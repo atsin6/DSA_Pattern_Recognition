@@ -1,60 +1,23 @@
 import type { Pattern } from '../../../shared/types/domain'
-import { categoryColor } from './pattern-config'
+import { categoryColor, isSubPattern, validatePatternCatalog } from './pattern-config'
 import { patternSchema } from './pattern-schema'
 
-import backtrack from '../../../content/patterns/backtrack.json'
-import bit from '../../../content/patterns/bit.json'
-import bsearch from '../../../content/patterns/bsearch.json'
-import dp_01knap from '../../../content/patterns/dp-01knap.json'
-import dp_bitmask from '../../../content/patterns/dp-bitmask.json'
-import dp_grid from '../../../content/patterns/dp-grid.json'
-import dp_interval from '../../../content/patterns/dp-interval.json'
-import dp_lcs from '../../../content/patterns/dp-lcs.json'
-import dp_linear from '../../../content/patterns/dp-linear.json'
-import dp_lis from '../../../content/patterns/dp-lis.json'
-import dp_statemachine from '../../../content/patterns/dp-statemachine.json'
-import dp_tree from '../../../content/patterns/dp-tree.json'
-import dp_unbounded from '../../../content/patterns/dp-unbounded.json'
-import dp from '../../../content/patterns/dp.json'
-import graphs from '../../../content/patterns/graphs.json'
-import greedy from '../../../content/patterns/greedy.json'
-import hashing from '../../../content/patterns/hashing.json'
-import heap from '../../../content/patterns/heap.json'
-import mono from '../../../content/patterns/mono.json'
-import prefix from '../../../content/patterns/prefix.json'
-import sliding from '../../../content/patterns/sliding.json'
-import trees from '../../../content/patterns/trees.json'
-import trie from '../../../content/patterns/trie.json'
-import twoptr from '../../../content/patterns/twoptr.json'
-import uf from '../../../content/patterns/uf.json'
+type JsonModule = { default: unknown }
 
-const rawPatternEntries: [string, unknown][] = [
-  ['backtrack.json', backtrack],
-  ['bit.json', bit],
-  ['bsearch.json', bsearch],
-  ['dp-01knap.json', dp_01knap],
-  ['dp-bitmask.json', dp_bitmask],
-  ['dp-grid.json', dp_grid],
-  ['dp-interval.json', dp_interval],
-  ['dp-lcs.json', dp_lcs],
-  ['dp-linear.json', dp_linear],
-  ['dp-lis.json', dp_lis],
-  ['dp-statemachine.json', dp_statemachine],
-  ['dp-tree.json', dp_tree],
-  ['dp-unbounded.json', dp_unbounded],
-  ['dp.json', dp],
-  ['graphs.json', graphs],
-  ['greedy.json', greedy],
-  ['hashing.json', hashing],
-  ['heap.json', heap],
-  ['mono.json', mono],
-  ['prefix.json', prefix],
-  ['sliding.json', sliding],
-  ['trees.json', trees],
-  ['trie.json', trie],
-  ['twoptr.json', twoptr],
-  ['uf.json', uf],
-]
+const patternFileModules = import.meta.glob('../../../content/patterns/*.json', { eager: true })
+
+const rawPatternEntries: [string, unknown][] = Object.entries(patternFileModules)
+  .map(([path, mod]): [string, unknown] => {
+    const fileName = path.split('/').pop() ?? path
+    const maybeModule = mod as JsonModule | unknown
+
+    if (typeof maybeModule === 'object' && maybeModule !== null && 'default' in maybeModule) {
+      return [fileName, (maybeModule as JsonModule).default]
+    }
+
+    return [fileName, maybeModule]
+  })
+  .sort(([a], [b]) => a.localeCompare(b))
 
 const parsedPatterns: Pattern[] = rawPatternEntries.map(([fileName, data]) => {
   const result = patternSchema.safeParse(data)
@@ -79,7 +42,28 @@ export function validateUniquePatternIds(collection: Pattern[]): void {
   }
 }
 
+export function validateOverviewSubPatternLinks(collection: Pattern[]): void {
+  const ids = new Set(collection.map((pattern) => pattern.id))
+
+  for (const pattern of collection) {
+    if (!pattern.subPatterns || pattern.subPatterns.length === 0) continue
+
+    for (const sub of pattern.subPatterns) {
+      if (!ids.has(sub.id)) {
+        throw new Error(`Overview pattern "${pattern.id}" links to unknown sub-pattern id: ${sub.id}`)
+      }
+      if (!isSubPattern(sub.id)) {
+        throw new Error(
+          `Overview pattern "${pattern.id}" links to "${sub.id}" but it is not registered in subPatternIds`,
+        )
+      }
+    }
+  }
+}
+
 validateUniquePatternIds(parsedPatterns)
+validatePatternCatalog(parsedPatterns.map((pattern) => pattern.id))
+validateOverviewSubPatternLinks(parsedPatterns)
 
 export const patterns: Pattern[] = parsedPatterns.map((pattern) => ({
   ...pattern,

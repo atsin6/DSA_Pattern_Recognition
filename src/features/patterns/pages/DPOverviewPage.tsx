@@ -7,6 +7,16 @@ interface DPOverviewPageProps {
 }
 
 export function DPOverviewPage({ pattern }: DPOverviewPageProps) {
+  const title = pattern.overviewTitle ?? pattern.label
+  const subtitle = pattern.overviewSubtitle ?? pattern.subtitle
+  const useWhenTitle = pattern.useWhenTitle ?? 'Use When'
+  const useWhenIcon = pattern.useWhenIcon ?? '📡'
+  const useWhenColor = pattern.useWhenColor ?? 'var(--blue)'
+  const avoidWhenTitle = pattern.avoidWhenTitle ?? 'Avoid When'
+  const avoidWhenIcon = pattern.avoidWhenIcon ?? '🚫'
+  const avoidWhenColor = pattern.avoidWhenColor ?? 'var(--red)'
+  const sectionTitle = pattern.subPatternsTitle ?? `${(pattern.subPatterns ?? []).length} Sub-Patterns`
+
   return (
     <>
       <header className={styles.pageHeader}>
@@ -14,16 +24,16 @@ export function DPOverviewPage({ pattern }: DPOverviewPageProps) {
           {pattern.icon}
         </div>
         <div>
-          <h2>Dynamic Programming — Overview</h2>
-          <p>10 sub-patterns you can use as a fast decision tree.</p>
+          <h2>{title}</h2>
+          <p>{subtitle}</p>
         </div>
       </header>
 
       <section className={styles.cardsGrid}>
         <article className={styles.card}>
           <header className={styles.cardHeader}>
-            <span>{pattern.useWhenIcon}</span>
-            <h3 style={{ color: pattern.useWhenColor }}>{pattern.useWhenTitle}</h3>
+            <span>{useWhenIcon}</span>
+            <h3 style={{ color: useWhenColor }}>{useWhenTitle}</h3>
           </header>
           <ul className={styles.greenList}>
             {(pattern.useWhenItems ?? []).map((item) => (
@@ -34,8 +44,8 @@ export function DPOverviewPage({ pattern }: DPOverviewPageProps) {
 
         <article className={styles.card}>
           <header className={styles.cardHeader}>
-            <span>{pattern.avoidWhenIcon}</span>
-            <h3 style={{ color: pattern.avoidWhenColor }}>{pattern.avoidWhenTitle}</h3>
+            <span>{avoidWhenIcon}</span>
+            <h3 style={{ color: avoidWhenColor }}>{avoidWhenTitle}</h3>
           </header>
           <ul className={styles.redList}>
             {(pattern.avoidWhenItems ?? []).map((item) => (
@@ -45,8 +55,8 @@ export function DPOverviewPage({ pattern }: DPOverviewPageProps) {
         </article>
       </section>
 
-      <h3 className={styles.sectionTitle}>10 DP Sub-Patterns</h3>
-      <section className={styles.patternGrid}>
+      <h3 className={styles.sectionTitle}>{sectionTitle}</h3>
+      <section className={styles.patternGrid} aria-label="Sub-pattern cards">
         {(pattern.subPatterns ?? []).map((subPattern, index) => (
           <Link key={subPattern.id} to={`/patterns/${subPattern.id}`} className={styles.patternCard} style={{ animationDelay: `${index * 32}ms` }}>
             <div className={styles.cardTitle}>{subPattern.title}</div>

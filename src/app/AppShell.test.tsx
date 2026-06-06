@@ -1,5 +1,4 @@
-import { render, screen } from '@testing-library/react'
-import { within } from '@testing-library/react'
+import { render, screen, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { MemoryRouter } from 'react-router-dom'
 import { AppShell } from './AppShell'
@@ -27,7 +26,14 @@ describe('AppShell routing and UI behavior', () => {
   it('renders a specific pattern page on deep-link route', () => {
     renderAt('/patterns/sliding')
 
-    expect(screen.getByRole('heading', { name: 'Sliding Window' })).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: 'Sliding Window — Overview' })).toBeInTheDocument()
+
+    const subPatternCards = screen.getByRole('region', { name: 'Sub-pattern cards' })
+    expect(within(subPatternCards).getByRole('link', { name: /Fixed Size/i })).toBeInTheDocument()
+    expect(within(subPatternCards).getByRole('link', { name: /Variable — Longest/i })).toBeInTheDocument()
+    expect(within(subPatternCards).getByRole('link', { name: /Variable — Shortest/i })).toBeInTheDocument()
+    expect(within(subPatternCards).getByRole('link', { name: /At Most K/i })).toBeInTheDocument()
+    expect(within(subPatternCards).getByRole('link', { name: /Frequency Map Window/i })).toBeInTheDocument()
   })
 
   it('renders not-found fallback for unknown pattern ids', () => {

@@ -3,7 +3,20 @@ import { patterns, validateUniquePatternIds } from './patterns'
 
 describe('pattern content validation', () => {
   it('loads all pattern content files', () => {
-    expect(patterns).toHaveLength(25)
+    const ids = patterns.map((pattern) => pattern.id)
+
+    expect(patterns.length).toBeGreaterThan(0)
+    expect(ids).toEqual(
+      expect.arrayContaining([
+        'sliding',
+        'sliding-fixed',
+        'sliding-longest',
+        'sliding-shortest',
+        'sliding-atmost',
+        'sliding-freq',
+        'dp',
+      ]),
+    )
   })
 
   it('throws on duplicate ids', () => {

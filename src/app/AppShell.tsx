@@ -7,7 +7,7 @@ import { DecisionPage } from '../features/framework/pages/DecisionPage'
 import { DPOverviewPage } from '../features/patterns/pages/DPOverviewPage'
 import { HomePage } from '../features/patterns/pages/HomePage'
 import { PatternPage } from '../features/patterns/pages/PatternPage'
-import { FRAMEWORK_IDS } from '../features/patterns/data/pattern-config'
+import { FRAMEWORK_IDS, frameworkPathToId } from '../features/patterns/data/pattern-config'
 import { getPatternById, patternMap } from '../features/patterns/data/patterns'
 import styles from './AppShell.module.css'
 
@@ -16,9 +16,8 @@ interface ThemeState {
 }
 
 function resolvePageId(pathname: string): string {
-  if (pathname === '/') return 'home'
-  if (pathname === '/framework/decision') return 'decision'
-  if (pathname === '/framework/compare') return 'compare'
+  const frameworkId = frameworkPathToId(pathname)
+  if (frameworkId) return frameworkId
   if (pathname.startsWith('/patterns/')) {
     const patternId = decodeURIComponent(pathname.replace('/patterns/', ''))
     return patternMap[patternId] ? patternId : 'home'
@@ -39,7 +38,7 @@ function PatternRoute() {
     )
   }
 
-  if (pattern.dpOverview) {
+  if (pattern.overview || pattern.dpOverview) {
     return <DPOverviewPage pattern={pattern} />
   }
 

@@ -30,6 +30,11 @@ export const patternSchema = z.object({
   problems: z.array(problemSchema).optional(),
   stateTransition: z.array(stateTransitionLineSchema).optional(),
   stateTransitionTitle: z.string().optional(),
+  overview: z.boolean().optional(),
+  overviewTitle: z.string().optional(),
+  overviewSubtitle: z.string().optional(),
+  subPatternsTitle: z.string().optional(),
+  // Backward-compatible alias; prefer `overview`.
   dpOverview: z.boolean().optional(),
   useWhenTitle: z.string().optional(),
   useWhenIcon: z.string().optional(),
